@@ -61,9 +61,33 @@
     display: flex; flex-direction: column;
     opacity: 0; pointer-events: none;
     overflow: hidden;
+    isolation: isolate;
     transition: opacity var(--duration) var(--ease);
   }
   .slide.active { opacity: 1; pointer-events: auto; z-index: 2; }
+
+  /* Themed slide backgrounds — atmospheric per-section ambience */
+  .slidebg {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    object-position: center;
+    opacity: 0;
+    filter: saturate(108%);
+    z-index: -2;
+    pointer-events: none;
+    transition: opacity 1100ms var(--ease) 200ms;
+  }
+  .slide.active .slidebg { opacity: 0.28; }
+  .slide.themed::before {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(900px 600px at 78% -10%, rgba(0,212,255,0.06), transparent 60%),
+      linear-gradient(180deg, rgba(7,9,15,0.55) 0%, rgba(7,9,15,0.78) 100%);
+    z-index: -1;
+    pointer-events: none;
+  }
 
   .slide .reveal {
     opacity: 0; transform: translateY(18px);
@@ -610,6 +634,9 @@
     .nlist .n { font-size: 22px; }
     .nlist h5 { font-size: 15px; }
     .nlist p { font-size: 13px; }
+
+    /* Mobile: themed bg always visible (no active gating) */
+    .slidebg { opacity: 0.28 !important; transition: none; }
 
     /* Visual page mobile adjustments */
     .slide.visual { min-height: 100dvh; padding: 0; }
@@ -1755,6 +1782,30 @@
 <script>
   const slides = Array.from(document.querySelectorAll('.slide'));
   const isMobile = window.matchMedia('(max-width: 720px)').matches;
+  // Themed section backgrounds — auto-applied by slide number
+  const partOf = (n) => {
+    if (n <= 5) return 'opening';
+    if ([7,9,10,11,13].includes(n)) return 'part1';
+    if ([15,16,17,18,20,21,23].includes(n)) return 'part2';
+    if ([24,25,26,27].includes(n)) return 'part3';
+    if ([29,30,32,34,36,38].includes(n)) return 'part4';
+    if ([39,41,44].includes(n)) return 'part5';
+    return null;
+  };
+  slides.forEach(s => {
+    if (s.classList.contains('visual')) return;
+    const n = parseInt(s.dataset.i, 10);
+    const part = partOf(n);
+    if (!part) return;
+    s.classList.add('themed');
+    const bg = document.createElement('img');
+    bg.className = 'slidebg';
+    bg.src = `book5-images/bg-${part}.png`;
+    bg.loading = 'lazy';
+    bg.decoding = 'async';
+    bg.alt = '';
+    s.insertBefore(bg, s.firstChild);
+  });
   const lazyImgs = [];
   slides.forEach(s => {
     const src = s.dataset.img;
