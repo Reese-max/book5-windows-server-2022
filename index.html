@@ -1499,6 +1499,7 @@
 <script>
   const slides = Array.from(document.querySelectorAll('.slide'));
   const isMobile = window.matchMedia('(max-width: 720px)').matches;
+  const lazyImgs = [];
   slides.forEach(s => {
     const src = s.dataset.img;
     if (!src) return;
@@ -1507,13 +1508,24 @@
     img.loading = 'lazy';
     img.decoding = 'async';
     img.alt = '';
-    if (isMobile) {
-      img.src = src;
-    } else {
-      img.dataset.src = src;
-    }
+    img.dataset.src = src;
     s.appendChild(img);
+    lazyImgs.push(img);
   });
+  // Intersection observer loads images as their slides approach viewport — works both desktop and mobile
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (!e.isIntersecting) return;
+        const im = e.target;
+        if (!im.src && im.dataset.src) im.src = im.dataset.src;
+        io.unobserve(im);
+      });
+    }, { rootMargin: '200px' });
+    lazyImgs.forEach(im => io.observe(im));
+  } else {
+    lazyImgs.forEach(im => { if (im.dataset.src) im.src = im.dataset.src; });
+  }
   function loadNear(idx) {
     if (isMobile) return;
     for (let off = -1; off <= 2; off++) {
