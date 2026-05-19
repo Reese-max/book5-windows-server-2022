@@ -60,9 +60,10 @@
     padding: 56px 80px;
     display: flex; flex-direction: column;
     opacity: 0; pointer-events: none;
+    overflow: hidden;
     transition: opacity var(--duration) var(--ease);
   }
-  .slide.active { opacity: 1; pointer-events: auto; }
+  .slide.active { opacity: 1; pointer-events: auto; z-index: 2; }
 
   .slide .reveal {
     opacity: 0; transform: translateY(18px);
@@ -388,7 +389,66 @@
   /* footer keyword tags */
   .kws { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 22px; }
 
-  /* Q-style illustration — small accent badges */
+  /* Visual full-bleed page */
+  .slide.visual { padding: 0; overflow: hidden; background: var(--bg); }
+  .slide.visual .vimg {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    object-position: center;
+    z-index: 0;
+    opacity: 0;
+    transform: scale(1.04);
+    transition: opacity 900ms var(--ease), transform 1400ms var(--ease);
+  }
+  .slide.visual.active .vimg { opacity: 1; transform: scale(1); }
+  .slide.visual .vshade {
+    position: absolute; inset: 0; z-index: 1;
+    background:
+      linear-gradient(180deg, rgba(7,9,15,0.55) 0%, rgba(7,9,15,0) 30%, rgba(7,9,15,0) 55%, rgba(7,9,15,0.88) 100%),
+      linear-gradient(90deg, rgba(7,9,15,0.55) 0%, rgba(7,9,15,0) 45%);
+    pointer-events: none;
+  }
+  .slide.visual .strip {
+    position: absolute; top: 56px; left: 80px; right: 80px;
+    z-index: 3;
+    border-bottom: 1px solid rgba(255,255,255,0.12);
+    padding-bottom: 18px;
+    background: transparent;
+  }
+  .slide.visual .vcap {
+    position: absolute;
+    left: 80px; bottom: 80px;
+    z-index: 3;
+    max-width: 620px;
+    padding: 22px 28px 24px;
+    background: rgba(10,14,26,0.72);
+    backdrop-filter: blur(18px) saturate(160%);
+    -webkit-backdrop-filter: blur(18px) saturate(160%);
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: 16px;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+  }
+  .slide.visual .vkey {
+    display: inline-block; padding: 4px 10px;
+    font-family: "Space Grotesk", monospace;
+    font-size: 11px; letter-spacing: 0.18em;
+    color: var(--accent); background: rgba(0,212,255,0.12);
+    border: 1px solid rgba(0,212,255,0.3);
+    border-radius: 999px;
+  }
+  .slide.visual .vtitle {
+    margin-top: 14px;
+    font-size: clamp(28px, 3.2vw, 42px);
+    font-weight: 800; line-height: 1.05; letter-spacing: -0.015em;
+  }
+  .slide.visual .vbody {
+    margin-top: 10px;
+    color: rgba(232,236,244,0.85);
+    font-size: 15px; line-height: 1.55;
+  }
+
+  /* Q-style illustration — small accent badges (unused, kept for safety) */
   .illust {
     position: absolute;
     bottom: 70px; right: 80px;
@@ -551,6 +611,17 @@
     .nlist h5 { font-size: 15px; }
     .nlist p { font-size: 13px; }
 
+    /* Visual page mobile adjustments */
+    .slide.visual { min-height: 100dvh; padding: 0; }
+    .slide.visual .strip { top: 22px; left: 18px; right: 18px; padding-bottom: 12px; }
+    .slide.visual .vcap {
+      left: 18px; right: 18px; bottom: 80px;
+      max-width: none; padding: 16px 18px 18px;
+      border-radius: 14px;
+    }
+    .slide.visual .vtitle { font-size: 24px; }
+    .slide.visual .vbody { font-size: 13px; }
+
     /* illust shrink + reposition above content top-right */
     .illust,
     .illust.hero,
@@ -587,8 +658,7 @@
 
 <div class="deck" id="deck">
 
-<!-- 1. COVER -->
-<section class="slide cover active" data-i="1" data-img="book5-images/01-cover.png" data-img-class="hero">
+<section class="slide cover active" data-i="1">
   <div class="cover-art"></div>
   <div class="corner reveal">
     <div>Information Security Series</div>
@@ -611,11 +681,10 @@
   <div class="rule reveal d3"></div>
 </section>
 
-<!-- 2. 報告主軸 -->
-<section class="slide" data-i="2" data-img="book5-images/02-question.png">
+<section class="slide" data-i="2">
   <div class="strip reveal">
     <div class="left"><span class="dot"></span><span>opening · 主軸</span></div>
-    <div class="pageno">02 / 30</div>
+    <div class="pageno">02 / 45</div>
   </div>
   <div class="center-quote">
     <div class="eyebrow reveal">本場核心提問</div>
@@ -630,11 +699,10 @@
   </div>
 </section>
 
-<!-- 3. 全章節地圖 -->
-<section class="slide" data-i="3" data-img="book5-images/03-map.png" data-img-class="top-right">
+<section class="slide" data-i="3">
   <div class="strip reveal">
     <div class="left"><span class="dot"></span><span>chapter map · Book 5</span></div>
-    <div class="pageno">03 / 30</div>
+    <div class="pageno">03 / 45</div>
   </div>
   <div class="content">
     <div class="eyebrow reveal">全書七章一覽</div>
@@ -655,11 +723,10 @@
   </div>
 </section>
 
-<!-- 4. 為什麼重要 -->
-<section class="slide" data-i="4" data-img="book5-images/04-stakes.png">
+<section class="slide" data-i="4">
   <div class="strip reveal">
     <div class="left"><span class="dot"></span><span>why · 為什麼伺服器安全是底層邏輯</span></div>
-    <div class="pageno">04 / 30</div>
+    <div class="pageno">04 / 45</div>
   </div>
   <div class="content">
     <div class="sp">
@@ -685,11 +752,10 @@
   </div>
 </section>
 
-<!-- 5. 安全架構圖 -->
-<section class="slide" data-i="5" data-img="book5-images/05-architecture.png" data-img-class="top-right">
+<section class="slide" data-i="5">
   <div class="strip reveal">
     <div class="left"><span class="dot"></span><span>architecture · 縱深防禦頂層設計</span></div>
-    <div class="pageno">05 / 30</div>
+    <div class="pageno">05 / 45</div>
   </div>
   <div class="content">
     <div class="eyebrow reveal">defense in depth</div>
@@ -716,13 +782,25 @@
   </div>
 </section>
 
-<!-- ===================== Part 1 ===================== -->
+<!-- 06 V1 -->
+<section class="slide visual" data-i="6">
+  <img class="vimg" src="book5-images/v01-attack-comic.png" alt="" loading="lazy" decoding="async" />
+  <div class="vshade"></div>
+  <div class="strip reveal">
+    <div class="left"><span class="dot"></span><span>visual · 攻擊故事</span></div>
+    <div class="pageno">06 / 45</div>
+  </div>
+  <div class="vcap reveal d2">
+    <div class="vkey">V1</div>
+    <h3 class="vtitle">攻擊者闖入伺服器</h3>
+    <p class="vbody">一台未補強的伺服器，能在幾分鐘內被滲透。</p>
+  </div>
+</section>
 
-<!-- 6. SID -->
-<section class="slide" data-i="6" data-img="book5-images/06-sid.png" data-img-class="bottom-left">
+<section class="slide" data-i="7">
   <div class="strip reveal">
     <div class="left"><span class="dot"></span><span>part 01 · 安全基礎 — 身分</span></div>
-    <div class="pageno">06 / 30</div>
+    <div class="pageno">07 / 45</div>
   </div>
   <div class="content">
     <div class="sp">
@@ -756,11 +834,25 @@
   </div>
 </section>
 
-<!-- 7. Security Descriptor -->
-<section class="slide" data-i="7" data-img="book5-images/07-descriptor.png" data-img-class="top-right">
+<!-- 08 V2 -->
+<section class="slide visual" data-i="8">
+  <img class="vimg" src="book5-images/v02-sid-chalkboard.png" alt="" loading="lazy" decoding="async" />
+  <div class="vshade"></div>
+  <div class="strip reveal">
+    <div class="left"><span class="dot"></span><span>visual · 結構解剖</span></div>
+    <div class="pageno">08 / 45</div>
+  </div>
+  <div class="vcap reveal d2">
+    <div class="vkey">V2</div>
+    <h3 class="vtitle">SID 解剖</h3>
+    <p class="vbody">使用者改名，SID 不變——這是 Windows 身分系統的底層邏輯。</p>
+  </div>
+</section>
+
+<section class="slide" data-i="9">
   <div class="strip reveal">
     <div class="left"><span class="dot"></span><span>part 01 · 安全基礎 — 物件描述</span></div>
-    <div class="pageno">07 / 30</div>
+    <div class="pageno">09 / 45</div>
   </div>
   <div class="content">
     <div class="eyebrow reveal">Security Descriptor</div>
@@ -787,11 +879,10 @@
   </div>
 </section>
 
-<!-- 8. DACL vs SACL -->
-<section class="slide" data-i="8" data-img="book5-images/08-dacl-sacl.png" data-img-class="top-right">
+<section class="slide" data-i="10">
   <div class="strip reveal">
     <div class="left"><span class="dot"></span><span>part 01 · 存取 vs 稽核</span></div>
-    <div class="pageno">08 / 30</div>
+    <div class="pageno">10 / 45</div>
   </div>
   <div class="content">
     <div class="eyebrow reveal">DACL vs SACL</div>
@@ -822,11 +913,10 @@
   </div>
 </section>
 
-<!-- 9. ACL / ACE -->
-<section class="slide" data-i="9" data-img="book5-images/09-acl.png" data-img-class="top-right">
+<section class="slide" data-i="11">
   <div class="strip reveal">
     <div class="left"><span class="dot"></span><span>part 01 · 權限的顆粒度</span></div>
-    <div class="pageno">09 / 30</div>
+    <div class="pageno">11 / 45</div>
   </div>
   <div class="content">
     <div class="sp">
@@ -880,11 +970,25 @@
   </div>
 </section>
 
-<!-- 10. 第一段小結 -->
-<section class="slide" data-i="10" data-img="book5-images/10-summary1.png" data-img-class="top-right">
+<!-- 12 V3 -->
+<section class="slide visual" data-i="12">
+  <img class="vimg" src="book5-images/v03-acl-isometric.png" alt="" loading="lazy" decoding="async" />
+  <div class="vshade"></div>
+  <div class="strip reveal">
+    <div class="left"><span class="dot"></span><span>visual · 規則匹配</span></div>
+    <div class="pageno">12 / 45</div>
+  </div>
+  <div class="vcap reveal d2">
+    <div class="vkey">V3</div>
+    <h3 class="vtitle">ACL 規則匹配流程</h3>
+    <p class="vbody">ACE 由上而下逐條比對；顯式拒絕優先於允許。</p>
+  </div>
+</section>
+
+<section class="slide" data-i="13">
   <div class="strip reveal">
     <div class="left"><span class="dot"></span><span>part 01 · 小結</span></div>
-    <div class="pageno">10 / 30</div>
+    <div class="pageno">13 / 45</div>
   </div>
   <div class="closing">
     <div class="eyebrow reveal">summary · 安全基礎三句話</div>
@@ -899,13 +1003,25 @@
   </div>
 </section>
 
-<!-- ===================== Part 2 ===================== -->
+<!-- 14 V4 -->
+<section class="slide visual" data-i="14">
+  <img class="vimg" src="book5-images/v04-three-creeds-poster.png" alt="" loading="lazy" decoding="async" />
+  <div class="vshade"></div>
+  <div class="strip reveal">
+    <div class="left"><span class="dot"></span><span>visual · 三句口訣</span></div>
+    <div class="pageno">14 / 45</div>
+  </div>
+  <div class="vcap reveal d2">
+    <div class="vkey">V4</div>
+    <h3 class="vtitle">安全基礎三句</h3>
+    <p class="vbody">誰是誰、誰能做什麼、誰做了什麼——記得這三句，就掌握全章。</p>
+  </div>
+</section>
 
-<!-- 11. 共享資料夾的目的 -->
-<section class="slide" data-i="11" data-img="book5-images/11-shared-folder.png" data-img-class="bottom-left">
+<section class="slide" data-i="15">
   <div class="strip reveal">
     <div class="left"><span class="dot"></span><span>part 02 · 共享資源</span></div>
-    <div class="pageno">11 / 30</div>
+    <div class="pageno">15 / 45</div>
   </div>
   <div class="content">
     <div class="sp">
@@ -934,11 +1050,10 @@
   </div>
 </section>
 
-<!-- 12. Share Permission -->
-<section class="slide" data-i="12" data-img="book5-images/12-share-perm.png" data-img-class="top-right">
+<section class="slide" data-i="16">
   <div class="strip reveal">
     <div class="left"><span class="dot"></span><span>part 02 · Share Permission</span></div>
-    <div class="pageno">12 / 30</div>
+    <div class="pageno">16 / 45</div>
   </div>
   <div class="content">
     <div class="eyebrow reveal">Share Permission</div>
@@ -965,11 +1080,10 @@
   </div>
 </section>
 
-<!-- 13. NTFS Permission -->
-<section class="slide" data-i="13" data-img="book5-images/13-ntfs-perm.png" data-img-class="top-right">
+<section class="slide" data-i="17">
   <div class="strip reveal">
     <div class="left"><span class="dot"></span><span>part 02 · NTFS Permission</span></div>
-    <div class="pageno">13 / 30</div>
+    <div class="pageno">17 / 45</div>
   </div>
   <div class="content">
     <div class="eyebrow reveal">NTFS Permission</div>
@@ -985,11 +1099,10 @@
   </div>
 </section>
 
-<!-- 14. Share vs NTFS 比較 -->
-<section class="slide" data-i="14" data-img="book5-images/14-vs.png" data-img-class="top-right">
+<section class="slide" data-i="18">
   <div class="strip reveal">
     <div class="left"><span class="dot"></span><span>part 02 · 對比</span></div>
-    <div class="pageno">14 / 30</div>
+    <div class="pageno">18 / 45</div>
   </div>
   <div class="content">
     <div class="eyebrow reveal">share vs ntfs</div>
@@ -1014,11 +1127,25 @@
   </div>
 </section>
 
-<!-- 15. Effective Permission -->
-<section class="slide" data-i="15" data-img="book5-images/15-effective.png" data-img-class="top-right">
+<!-- 19 V5 -->
+<section class="slide visual" data-i="19">
+  <img class="vimg" src="book5-images/v05-share-ntfs-iso.png" alt="" loading="lazy" decoding="async" />
+  <div class="vshade"></div>
+  <div class="strip reveal">
+    <div class="left"><span class="dot"></span><span>visual · 權限交集</span></div>
+    <div class="pageno">19 / 45</div>
+  </div>
+  <div class="vcap reveal d2">
+    <div class="vkey">V5</div>
+    <h3 class="vtitle">Share ∩ NTFS</h3>
+    <p class="vbody">兩道閘門取交集，較嚴格那邊永遠勝出。</p>
+  </div>
+</section>
+
+<section class="slide" data-i="20">
   <div class="strip reveal">
     <div class="left"><span class="dot"></span><span>part 02 · 實際生效</span></div>
-    <div class="pageno">15 / 30</div>
+    <div class="pageno">20 / 45</div>
   </div>
   <div class="content">
     <div class="eyebrow reveal">Effective Permission</div>
@@ -1047,11 +1174,10 @@
   </div>
 </section>
 
-<!-- 16. 權限案例 -->
-<section class="slide" data-i="16" data-img="book5-images/16-case.png" data-img-class="top-right">
+<section class="slide" data-i="21">
   <div class="strip reveal">
     <div class="left"><span class="dot"></span><span>part 02 · 案例</span></div>
-    <div class="pageno">16 / 30</div>
+    <div class="pageno">21 / 45</div>
   </div>
   <div class="content">
     <div class="eyebrow reveal">case study</div>
@@ -1089,11 +1215,25 @@
   </div>
 </section>
 
-<!-- 17. 最佳實務 -->
-<section class="slide" data-i="17" data-img="book5-images/17-best.png" data-img-class="top-right">
+<!-- 22 V6 -->
+<section class="slide visual" data-i="22">
+  <img class="vimg" src="book5-images/v06-finance-comic.png" alt="" loading="lazy" decoding="async" />
+  <div class="vshade"></div>
+  <div class="strip reveal">
+    <div class="left"><span class="dot"></span><span>visual · 案例漫畫</span></div>
+    <div class="pageno">22 / 45</div>
+  </div>
+  <div class="vcap reveal d2">
+    <div class="vkey">V6</div>
+    <h3 class="vtitle">財務檔案存取</h3>
+    <p class="vbody">Share 全開、NTFS 收緊到 Finance Read——只有財務看得到。</p>
+  </div>
+</section>
+
+<section class="slide" data-i="23">
   <div class="strip reveal">
     <div class="left"><span class="dot"></span><span>part 02 · 最佳實務</span></div>
-    <div class="pageno">17 / 30</div>
+    <div class="pageno">23 / 45</div>
   </div>
   <div class="content">
     <div class="eyebrow reveal">best practice</div>
@@ -1107,13 +1247,10 @@
   </div>
 </section>
 
-<!-- ===================== Part 3 ===================== -->
-
-<!-- 18. 為什麼需要稽核 -->
-<section class="slide" data-i="18" data-img="book5-images/18-audit-why.png">
+<section class="slide" data-i="24">
   <div class="strip reveal">
     <div class="left"><span class="dot"></span><span>part 03 · 稽核與本機政策</span></div>
-    <div class="pageno">18 / 30</div>
+    <div class="pageno">24 / 45</div>
   </div>
   <div class="content">
     <div class="center-quote">
@@ -1128,11 +1265,10 @@
   </div>
 </section>
 
-<!-- 19. Audit Policy -->
-<section class="slide" data-i="19" data-img="book5-images/19-audit-cat.png" data-img-class="top-right">
+<section class="slide" data-i="25">
   <div class="strip reveal">
     <div class="left"><span class="dot"></span><span>part 03 · Audit Policy</span></div>
-    <div class="pageno">19 / 30</div>
+    <div class="pageno">25 / 45</div>
   </div>
   <div class="content">
     <div class="eyebrow reveal">audit categories</div>
@@ -1150,11 +1286,10 @@
   </div>
 </section>
 
-<!-- 20. Local Security Policy -->
-<section class="slide" data-i="20" data-img="book5-images/20-local-policy.png" data-img-class="top-right">
+<section class="slide" data-i="26">
   <div class="strip reveal">
     <div class="left"><span class="dot"></span><span>part 03 · Local Policy</span></div>
-    <div class="pageno">20 / 30</div>
+    <div class="pageno">26 / 45</div>
   </div>
   <div class="content">
     <div class="eyebrow reveal">Local Security Policy</div>
@@ -1168,11 +1303,10 @@
   </div>
 </section>
 
-<!-- 21. Group Policy 優先性 -->
-<section class="slide" data-i="21" data-img="book5-images/21-lsdou.png" data-img-class="top-right">
+<section class="slide" data-i="27">
   <div class="strip reveal">
     <div class="left"><span class="dot"></span><span>part 03 · 政策優先性</span></div>
-    <div class="pageno">21 / 30</div>
+    <div class="pageno">27 / 45</div>
   </div>
   <div class="content">
     <div class="eyebrow reveal">policy precedence</div>
@@ -1193,13 +1327,25 @@
   </div>
 </section>
 
-<!-- ===================== Part 4 ===================== -->
+<!-- 28 V7 -->
+<section class="slide visual" data-i="28">
+  <img class="vimg" src="book5-images/v07-lsdou-stairs.png" alt="" loading="lazy" decoding="async" />
+  <div class="vshade"></div>
+  <div class="strip reveal">
+    <div class="left"><span class="dot"></span><span>visual · 套用階梯</span></div>
+    <div class="pageno">28 / 45</div>
+  </div>
+  <div class="vcap reveal d2">
+    <div class="vkey">V7</div>
+    <h3 class="vtitle">LSDOU 順序</h3>
+    <p class="vbody">Local → Site → Domain → OU，越上層覆蓋越強，網域政策決勝。</p>
+  </div>
+</section>
 
-<!-- 22. Windows Security App -->
-<section class="slide" data-i="22" data-img="book5-images/22-windows-security.png" data-img-class="top-right">
+<section class="slide" data-i="29">
   <div class="strip reveal">
     <div class="left"><span class="dot"></span><span>part 04 · 主機防護</span></div>
-    <div class="pageno">22 / 30</div>
+    <div class="pageno">29 / 45</div>
   </div>
   <div class="content">
     <div class="eyebrow reveal">Windows Security</div>
@@ -1215,11 +1361,10 @@
   </div>
 </section>
 
-<!-- 23. Microsoft Defender -->
-<section class="slide" data-i="23" data-img="book5-images/23-defender.png" data-img-class="bottom-left">
+<section class="slide" data-i="30">
   <div class="strip reveal">
     <div class="left"><span class="dot"></span><span>part 04 · Defender</span></div>
-    <div class="pageno">23 / 30</div>
+    <div class="pageno">30 / 45</div>
   </div>
   <div class="content">
     <div class="sp">
@@ -1238,11 +1383,25 @@
   </div>
 </section>
 
-<!-- 24. UAC -->
-<section class="slide" data-i="24" data-img="book5-images/24-uac.png" data-img-class="top-right">
+<!-- 31 V8 -->
+<section class="slide visual" data-i="31">
+  <img class="vimg" src="book5-images/v08-defender-magazine.png" alt="" loading="lazy" decoding="async" />
+  <div class="vshade"></div>
+  <div class="strip reveal">
+    <div class="left"><span class="dot"></span><span>visual · EDR 節奏</span></div>
+    <div class="pageno">31 / 45</div>
+  </div>
+  <div class="vcap reveal d2">
+    <div class="vkey">V8</div>
+    <h3 class="vtitle">Defender 四步閉環</h3>
+    <p class="vbody">偵測 → 分析 → 隔離 → 回報——這是現代 EDR 的標準節奏。</p>
+  </div>
+</section>
+
+<section class="slide" data-i="32">
   <div class="strip reveal">
     <div class="left"><span class="dot"></span><span>part 04 · UAC</span></div>
-    <div class="pageno">24 / 30</div>
+    <div class="pageno">32 / 45</div>
   </div>
   <div class="content">
     <div class="eyebrow reveal">User Account Control</div>
@@ -1266,11 +1425,25 @@
   </div>
 </section>
 
-<!-- 25. Credential Guard -->
-<section class="slide" data-i="25" data-img="book5-images/25-credential-guard.png" data-img-class="bottom-left">
+<!-- 33 V9 -->
+<section class="slide visual" data-i="33">
+  <img class="vimg" src="book5-images/v09-uac-blueprint.png" alt="" loading="lazy" decoding="async" />
+  <div class="vshade"></div>
+  <div class="strip reveal">
+    <div class="left"><span class="dot"></span><span>visual · 雙 Token</span></div>
+    <div class="pageno">33 / 45</div>
+  </div>
+  <div class="vcap reveal d2">
+    <div class="vkey">V9</div>
+    <h3 class="vtitle">UAC 提權機制</h3>
+    <p class="vbody">管理員登入拿兩把 token，預設用標準的；提權時才切換到管理員。</p>
+  </div>
+</section>
+
+<section class="slide" data-i="34">
   <div class="strip reveal">
     <div class="left"><span class="dot"></span><span>part 04 · Credential Guard</span></div>
-    <div class="pageno">25 / 30</div>
+    <div class="pageno">34 / 45</div>
   </div>
   <div class="content">
     <div class="sp">
@@ -1306,11 +1479,25 @@
   </div>
 </section>
 
-<!-- 26. Windows Defender Firewall -->
-<section class="slide" data-i="26" data-img="book5-images/26-firewall.png" data-img-class="top-right">
+<!-- 35 V10 -->
+<section class="slide visual" data-i="35">
+  <img class="vimg" src="book5-images/v10-credential-cutaway.png" alt="" loading="lazy" decoding="async" />
+  <div class="vshade"></div>
+  <div class="strip reveal">
+    <div class="left"><span class="dot"></span><span>visual · 隔離剖面</span></div>
+    <div class="pageno">35 / 45</div>
+  </div>
+  <div class="vcap reveal d2">
+    <div class="vkey">V10</div>
+    <h3 class="vtitle">Credential Guard</h3>
+    <p class="vbody">把 LSA 關進 VTL1 虛擬保險箱，主作業系統碰不到憑證摘要。</p>
+  </div>
+</section>
+
+<section class="slide" data-i="36">
   <div class="strip reveal">
     <div class="left"><span class="dot"></span><span>part 04 · 防火牆</span></div>
-    <div class="pageno">26 / 30</div>
+    <div class="pageno">36 / 45</div>
   </div>
   <div class="content">
     <div class="eyebrow reveal">Defender Firewall</div>
@@ -1339,11 +1526,25 @@
   </div>
 </section>
 
-<!-- 27. Inbound / Outbound Rules -->
-<section class="slide" data-i="27" data-img="book5-images/27-inbound-outbound.png" data-img-class="top-right">
+<!-- 37 V11 -->
+<section class="slide visual" data-i="37">
+  <img class="vimg" src="book5-images/v11-firewall-pixel.png" alt="" loading="lazy" decoding="async" />
+  <div class="vshade"></div>
+  <div class="strip reveal">
+    <div class="left"><span class="dot"></span><span>visual · 三場景</span></div>
+    <div class="pageno">37 / 45</div>
+  </div>
+  <div class="vcap reveal d2">
+    <div class="vkey">V11</div>
+    <h3 class="vtitle">防火牆三 Profile</h3>
+    <p class="vbody">Domain 寬鬆、Private 中等、Public 嚴格——情境決定信任度。</p>
+  </div>
+</section>
+
+<section class="slide" data-i="38">
   <div class="strip reveal">
     <div class="left"><span class="dot"></span><span>part 04 · 規則方向</span></div>
-    <div class="pageno">27 / 30</div>
+    <div class="pageno">38 / 45</div>
   </div>
   <div class="content">
     <div class="eyebrow reveal">inbound · outbound</div>
@@ -1374,13 +1575,10 @@
   </div>
 </section>
 
-<!-- ===================== Part 5 ===================== -->
-
-<!-- 28. 數位憑證與 PKI -->
-<section class="slide" data-i="28" data-img="book5-images/28-pki.png" data-img-class="top-right">
+<section class="slide" data-i="39">
   <div class="strip reveal">
     <div class="left"><span class="dot"></span><span>part 05 · 信任體系</span></div>
-    <div class="pageno">28 / 30</div>
+    <div class="pageno">39 / 45</div>
   </div>
   <div class="content">
     <div class="eyebrow reveal">PKI · Certificate</div>
@@ -1415,11 +1613,25 @@
   </div>
 </section>
 
-<!-- 29. AD CS 架構 -->
-<section class="slide" data-i="29" data-img="book5-images/29-adcs.png" data-img-class="top-right">
+<!-- 40 V12 -->
+<section class="slide visual" data-i="40">
+  <img class="vimg" src="book5-images/v12-key-signature.png" alt="" loading="lazy" decoding="async" />
+  <div class="vshade"></div>
+  <div class="strip reveal">
+    <div class="left"><span class="dot"></span><span>visual · 非對稱密碼</span></div>
+    <div class="pageno">40 / 45</div>
+  </div>
+  <div class="vcap reveal d2">
+    <div class="vkey">V12</div>
+    <h3 class="vtitle">公私鑰簽章驗章</h3>
+    <p class="vbody">公鑰 / 私鑰兩個用途：加密 + 解密，簽章 + 驗章。</p>
+  </div>
+</section>
+
+<section class="slide" data-i="41">
   <div class="strip reveal">
     <div class="left"><span class="dot"></span><span>part 05 · AD CS</span></div>
-    <div class="pageno">29 / 30</div>
+    <div class="pageno">41 / 45</div>
   </div>
   <div class="content">
     <div class="eyebrow reveal">Active Directory Certificate Services</div>
@@ -1450,11 +1662,40 @@
   </div>
 </section>
 
-<!-- 30. DNSSEC & Conclusion -->
-<section class="slide" data-i="30" data-img="book5-images/30-dnssec.png" data-img-class="top-right">
+<!-- 42 V13 -->
+<section class="slide visual" data-i="42">
+  <img class="vimg" src="book5-images/v13-adcs-organigram.png" alt="" loading="lazy" decoding="async" />
+  <div class="vshade"></div>
+  <div class="strip reveal">
+    <div class="left"><span class="dot"></span><span>visual · 信任鏈</span></div>
+    <div class="pageno">42 / 45</div>
+  </div>
+  <div class="vcap reveal d2">
+    <div class="vkey">V13</div>
+    <h3 class="vtitle">AD CS 三層</h3>
+    <p class="vbody">Root CA 離線供奉、Issuing CA 線上發證、終端自動申請。</p>
+  </div>
+</section>
+
+<!-- 43 V14 -->
+<section class="slide visual" data-i="43">
+  <img class="vimg" src="book5-images/v14-dnssec-chain.png" alt="" loading="lazy" decoding="async" />
+  <div class="vshade"></div>
+  <div class="strip reveal">
+    <div class="left"><span class="dot"></span><span>visual · 簽章鏈</span></div>
+    <div class="pageno">43 / 45</div>
+  </div>
+  <div class="vcap reveal d2">
+    <div class="vkey">V14</div>
+    <h3 class="vtitle">DNSSEC</h3>
+    <p class="vbody">每一層 DNS 回應都帶數位簽章，杜絕中間人偽造。</p>
+  </div>
+</section>
+
+<section class="slide" data-i="44">
   <div class="strip reveal">
     <div class="left"><span class="dot"></span><span>part 05 · DNS Security · 結論</span></div>
-    <div class="pageno">30 / 30</div>
+    <div class="pageno">44 / 45</div>
   </div>
   <div class="content">
     <div class="eyebrow reveal">DNS security &amp; final word</div>
@@ -1487,13 +1728,28 @@
   </div>
 </section>
 
+<!-- 45 V15 -->
+<section class="slide visual" data-i="45">
+  <img class="vimg" src="book5-images/v15-finale-epic.png" alt="" loading="lazy" decoding="async" />
+  <div class="vshade"></div>
+  <div class="strip reveal">
+    <div class="left"><span class="dot"></span><span>visual · 結尾</span></div>
+    <div class="pageno">45 / 45</div>
+  </div>
+  <div class="vcap reveal d2">
+    <div class="vkey">V15</div>
+    <h3 class="vtitle">七道防線</h3>
+    <p class="vbody">從身分到 DNS——把 Windows Server 2022 拉通成一條完整縱深防禦。</p>
+  </div>
+</section>
+
 </div>
 
 <!-- HUD -->
 <div class="hud">
   <span>← / → · SPACE · HOME · END</span>
   <div class="progress" id="prog"></div>
-  <span class="counter"><span id="cur">01</span> / <span id="tot">30</span></span>
+  <span class="counter"><span id="cur">01</span> / <span id="tot">45</span></span>
 </div>
 
 <script>
