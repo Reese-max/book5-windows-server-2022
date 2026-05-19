@@ -1,0 +1,1397 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Book 5 — Windows Server 2022 安全管理</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #07090f;
+    --bg-2: #0d1220;
+    --surface: #131a2e;
+    --surface-2: #1a2340;
+    --border: rgba(255,255,255,0.08);
+    --border-strong: rgba(255,255,255,0.16);
+    --text: #eef1f8;
+    --muted: #8a94ad;
+    --dim: #5b657c;
+    --accent: #00d4ff;
+    --accent-2: #7c5cff;
+    --warn: #ffb547;
+    --danger: #ff5577;
+    --good: #00e89a;
+    --grad-1: linear-gradient(135deg, #00d4ff 0%, #7c5cff 100%);
+    --grad-2: linear-gradient(135deg, #ffb547 0%, #ff5577 100%);
+    --grad-3: linear-gradient(135deg, #00e89a 0%, #00d4ff 100%);
+    --shadow-1: 0 30px 80px rgba(0,0,0,0.5);
+    --duration: 600ms;
+    --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    height: 100%;
+    overflow: hidden;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Noto Sans TC", "Space Grotesk", -apple-system, sans-serif;
+    font-feature-settings: "ss01", "cv01";
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body::before {
+    content: "";
+    position: fixed; inset: 0;
+    background:
+      radial-gradient(800px 500px at 80% -10%, rgba(0,212,255,0.08), transparent 60%),
+      radial-gradient(600px 400px at 0% 100%, rgba(124,92,255,0.07), transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .deck { position: relative; width: 100vw; height: 100vh; z-index: 1; }
+
+  .slide {
+    position: absolute; inset: 0;
+    padding: 56px 80px;
+    display: flex; flex-direction: column;
+    opacity: 0; pointer-events: none;
+    transition: opacity var(--duration) var(--ease);
+  }
+  .slide.active { opacity: 1; pointer-events: auto; }
+
+  .slide .reveal {
+    opacity: 0; transform: translateY(18px);
+    transition: opacity 700ms var(--ease), transform 700ms var(--ease);
+  }
+  .slide.active .reveal { opacity: 1; transform: translateY(0); }
+  .slide.active .reveal.d1 { transition-delay: 120ms; }
+  .slide.active .reveal.d2 { transition-delay: 240ms; }
+  .slide.active .reveal.d3 { transition-delay: 360ms; }
+  .slide.active .reveal.d4 { transition-delay: 480ms; }
+  .slide.active .reveal.d5 { transition-delay: 600ms; }
+  .slide.active .reveal.d6 { transition-delay: 720ms; }
+  .slide.active .reveal.d7 { transition-delay: 840ms; }
+
+  /* Header strip */
+  .strip {
+    display: flex; justify-content: space-between; align-items: center;
+    font-family: "Space Grotesk", "JetBrains Mono", monospace;
+    font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--muted); padding-bottom: 24px;
+    border-bottom: 1px solid var(--border);
+  }
+  .strip .left { display: flex; gap: 18px; align-items: center; }
+  .strip .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 12px var(--accent); }
+  .strip .pageno { font-weight: 600; color: var(--text); }
+
+  /* HUD: progress + counter */
+  .hud {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    z-index: 100; padding: 14px 80px;
+    display: flex; justify-content: space-between; align-items: center;
+    pointer-events: none;
+    font-family: "JetBrains Mono", monospace; font-size: 12px;
+    color: var(--muted);
+  }
+  .progress {
+    flex: 1; height: 2px; background: rgba(255,255,255,0.06);
+    margin: 0 24px; position: relative; overflow: hidden;
+  }
+  .progress::before {
+    content: ""; position: absolute; inset: 0;
+    background: var(--grad-1);
+    transform: scaleX(var(--p, 0)); transform-origin: left;
+    transition: transform 500ms var(--ease);
+  }
+  .counter { color: var(--text); font-weight: 600; }
+
+  /* Typography helpers */
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 10px;
+    font-family: "Space Grotesk", monospace; font-size: 12px;
+    letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--accent);
+  }
+  .eyebrow::before {
+    content: ""; width: 24px; height: 1px; background: var(--accent);
+  }
+  h1.title {
+    font-size: clamp(48px, 6vw, 88px); font-weight: 900; line-height: 0.95;
+    letter-spacing: -0.02em;
+  }
+  h2.title { font-size: clamp(36px, 4.4vw, 64px); font-weight: 900; line-height: 1.02; letter-spacing: -0.015em; }
+  h3.title { font-size: clamp(24px, 2.4vw, 36px); font-weight: 700; line-height: 1.15; letter-spacing: -0.01em; }
+  .lead { color: var(--muted); font-size: 18px; line-height: 1.6; max-width: 720px; }
+  .grad-text { background: var(--grad-1); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .grad-text-2 { background: var(--grad-2); -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+  /* Card */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px 26px;
+    position: relative; overflow: hidden;
+  }
+  .card.glow::before {
+    content: ""; position: absolute; top: -2px; left: -2px; right: -2px; bottom: -2px;
+    background: var(--grad-1); border-radius: 16px; z-index: -1;
+    opacity: 0.6; filter: blur(14px);
+  }
+  .card .cap {
+    font-family: "JetBrains Mono", monospace; font-size: 11px;
+    letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted);
+  }
+  .card h4 { font-size: 22px; margin-top: 8px; font-weight: 700; }
+  .card p { color: var(--muted); font-size: 15px; line-height: 1.6; margin-top: 8px; }
+
+  /* Cover */
+  .cover {
+    justify-content: center; align-items: flex-start;
+    padding: 80px 100px;
+  }
+  .cover .meta {
+    display: flex; gap: 22px; align-items: center;
+    font-family: "Space Grotesk", monospace; font-size: 13px; letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--muted); margin-bottom: 36px;
+  }
+  .cover .meta b { color: var(--accent); font-weight: 600; }
+  .cover h1 {
+    font-size: clamp(64px, 9vw, 140px);
+    font-weight: 900; line-height: 0.9;
+    letter-spacing: -0.035em;
+  }
+  .cover .sub {
+    margin-top: 28px; font-size: 22px; color: var(--muted); max-width: 760px;
+    font-weight: 400;
+  }
+  .cover .rule {
+    margin-top: 56px; width: 220px; height: 3px;
+    background: var(--grad-1);
+  }
+  .cover .corner {
+    position: absolute; top: 56px; right: 80px;
+    font-family: "JetBrains Mono", monospace; font-size: 12px;
+    letter-spacing: 0.2em; color: var(--muted); text-align: right;
+  }
+  .cover .corner b { color: var(--text); }
+  .cover-art {
+    position: absolute; right: -100px; bottom: -100px;
+    width: 700px; height: 700px;
+    background:
+      conic-gradient(from 90deg, transparent 0deg, rgba(0,212,255,0.12) 60deg, transparent 120deg, rgba(124,92,255,0.10) 180deg, transparent 240deg, rgba(0,232,154,0.06) 300deg, transparent 360deg);
+    border-radius: 50%;
+    filter: blur(40px);
+    pointer-events: none;
+  }
+
+  /* Generic content layout */
+  .content { flex: 1; padding-top: 36px; display: flex; flex-direction: column; }
+
+  /* Two columns */
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; flex: 1; }
+  .three { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; flex: 1; }
+  .four { display: grid; grid-template-columns: repeat(2, 1fr); gap: 22px; flex: 1; }
+  .four.row4 { grid-template-columns: repeat(4, 1fr); }
+
+  .stack > * + * { margin-top: 14px; }
+
+  /* Chapter map */
+  .chapter-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; flex: 1; align-content: start; padding-top: 24px; }
+  .chip {
+    border: 1px solid var(--border);
+    border-radius: 14px; padding: 22px 22px 26px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), transparent);
+    position: relative; overflow: hidden;
+  }
+  .chip .num { font-family: "Space Grotesk", monospace; font-size: 13px; color: var(--accent); letter-spacing: 0.16em; }
+  .chip h4 { margin-top: 10px; font-size: 19px; font-weight: 700; line-height: 1.25; }
+  .chip p { margin-top: 8px; color: var(--muted); font-size: 13px; line-height: 1.55; }
+  .chip::after {
+    content: ""; position: absolute; left: 0; bottom: 0; height: 2px; width: 0;
+    background: var(--grad-1); transition: width 600ms var(--ease);
+  }
+  .slide.active .chip::after { width: 100%; }
+
+  /* Numbered list */
+  .nlist { display: grid; gap: 14px; }
+  .nlist li {
+    display: grid; grid-template-columns: 56px 1fr; gap: 18px;
+    align-items: start; list-style: none;
+    padding: 16px 0; border-top: 1px solid var(--border);
+  }
+  .nlist li:first-child { border-top: none; }
+  .nlist .n {
+    font-family: "Space Grotesk", monospace; font-size: 26px; color: var(--accent);
+    font-weight: 700; letter-spacing: -0.02em;
+  }
+  .nlist h5 { font-size: 18px; margin-bottom: 4px; }
+  .nlist p { color: var(--muted); font-size: 14px; line-height: 1.55; }
+
+  /* Comparison table */
+  .table {
+    width: 100%; border-collapse: separate; border-spacing: 0;
+    font-size: 15px;
+  }
+  .table th, .table td {
+    padding: 14px 18px; text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  .table th {
+    font-family: "Space Grotesk", monospace; font-size: 12px;
+    letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--muted); font-weight: 600;
+  }
+  .table td.lab { color: var(--muted); width: 200px; }
+  .table tr:last-child td { border-bottom: none; }
+
+  /* Tag */
+  .tag {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 10px; border-radius: 999px;
+    background: rgba(0,212,255,0.1); color: var(--accent);
+    font-size: 12px; font-family: "JetBrains Mono", monospace;
+    border: 1px solid rgba(0,212,255,0.22);
+  }
+  .tag.warn { background: rgba(255,181,71,0.1); color: var(--warn); border-color: rgba(255,181,71,0.22); }
+  .tag.good { background: rgba(0,232,154,0.1); color: var(--good); border-color: rgba(0,232,154,0.22); }
+  .tag.danger { background: rgba(255,85,119,0.1); color: var(--danger); border-color: rgba(255,85,119,0.22); }
+
+  /* Flow */
+  .flow { display: flex; gap: 14px; align-items: stretch; flex: 1; }
+  .flow .node {
+    flex: 1; padding: 22px; background: var(--surface);
+    border: 1px solid var(--border); border-radius: 12px;
+    display: flex; flex-direction: column; justify-content: space-between;
+    position: relative;
+  }
+  .flow .node .step {
+    font-family: "JetBrains Mono", monospace; font-size: 11px;
+    letter-spacing: 0.16em; color: var(--accent); text-transform: uppercase;
+  }
+  .flow .node h5 { font-size: 18px; margin-top: 8px; }
+  .flow .node p { color: var(--muted); font-size: 13px; line-height: 1.55; margin-top: 10px; }
+  .flow .arrow {
+    align-self: center; color: var(--dim); font-size: 22px;
+    font-family: "Space Grotesk", monospace;
+  }
+
+  /* Big quote / Q */
+  .center-quote {
+    flex: 1; display: flex; flex-direction: column;
+    justify-content: center; align-items: flex-start;
+    gap: 28px;
+  }
+  .center-quote .q {
+    font-size: clamp(48px, 6.5vw, 96px);
+    font-weight: 900; line-height: 1.02; letter-spacing: -0.025em;
+    max-width: 1100px;
+  }
+
+  /* Stat */
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; }
+  .stat .v {
+    font-family: "Space Grotesk", monospace; font-size: 72px;
+    font-weight: 700; line-height: 1; letter-spacing: -0.03em;
+  }
+  .stat .l { color: var(--muted); margin-top: 8px; }
+
+  /* Side panel layout */
+  .sp { display: grid; grid-template-columns: 320px 1fr; gap: 40px; flex: 1; }
+  .sp .left h2 { font-size: 32px; line-height: 1.1; }
+  .sp .left .eyebrow { margin-bottom: 14px; }
+  .sp .left p { color: var(--muted); margin-top: 14px; line-height: 1.6; }
+  .sp .right { display: flex; flex-direction: column; gap: 14px; }
+
+  /* Icon block */
+  .ig { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .ig .b {
+    border: 1px solid var(--border); border-radius: 14px;
+    padding: 22px; background: linear-gradient(180deg, rgba(255,255,255,0.02), transparent);
+  }
+  .ig .b .icon {
+    width: 38px; height: 38px; border-radius: 10px;
+    background: rgba(0,212,255,0.1); border: 1px solid rgba(0,212,255,0.3);
+    display: grid; place-items: center;
+    color: var(--accent); font-weight: 700; font-family: "Space Grotesk", monospace;
+  }
+  .ig .b h5 { margin-top: 14px; font-size: 17px; }
+  .ig .b p { color: var(--muted); font-size: 13px; line-height: 1.55; margin-top: 6px; }
+
+  /* Closing */
+  .closing {
+    flex: 1; display: flex; flex-direction: column;
+    justify-content: center; gap: 28px;
+  }
+  .closing .big {
+    font-size: clamp(36px, 4.4vw, 60px); font-weight: 900;
+    line-height: 1.1; letter-spacing: -0.02em; max-width: 1100px;
+  }
+  .closing .big em { font-style: normal; }
+  .closing .pillars {
+    display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px;
+    margin-top: 20px;
+  }
+  .closing .pillars span {
+    padding: 10px 8px; text-align: center;
+    border: 1px solid var(--border); border-radius: 10px;
+    font-size: 13px; color: var(--muted);
+    background: rgba(255,255,255,0.02);
+  }
+
+  /* Hierarchy */
+  .hier { display: flex; flex-direction: column; gap: 12px; flex: 1; padding-top: 8px; }
+  .hier .row {
+    display: grid; grid-template-columns: 200px 1fr; gap: 24px;
+    padding: 18px 22px; border: 1px solid var(--border); border-radius: 12px;
+    background: var(--surface);
+  }
+  .hier .row .label { font-family: "Space Grotesk", monospace; color: var(--accent); font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; align-self: center; }
+  .hier .row h5 { font-size: 18px; }
+  .hier .row p { color: var(--muted); font-size: 14px; margin-top: 4px; line-height: 1.55; }
+
+  /* VS panel */
+  .vs { display: grid; grid-template-columns: 1fr 80px 1fr; gap: 24px; flex: 1; align-items: stretch; }
+  .vs .side {
+    border: 1px solid var(--border); border-radius: 16px; padding: 28px;
+    background: var(--surface); display: flex; flex-direction: column;
+  }
+  .vs .side .name {
+    font-family: "Space Grotesk", monospace; font-size: 12px;
+    letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent);
+  }
+  .vs .side h3 { font-size: 30px; margin-top: 10px; }
+  .vs .side ul { margin-top: 18px; display: grid; gap: 10px; }
+  .vs .side li {
+    list-style: none; padding: 10px 0; border-top: 1px dashed var(--border);
+    color: var(--muted); font-size: 14px; line-height: 1.5;
+    display: grid; grid-template-columns: 16px 1fr; gap: 10px;
+  }
+  .vs .side li:first-child { border-top: none; }
+  .vs .side li::before { content: "·"; color: var(--accent); font-weight: 700; }
+  .vs .side.alt .name { color: var(--accent-2); }
+  .vs .side.alt li::before { color: var(--accent-2); }
+  .vs .mid {
+    display: grid; place-items: center;
+    font-family: "Space Grotesk", monospace; font-weight: 700;
+    font-size: 26px; color: var(--dim);
+  }
+
+  /* Code */
+  code, .mono { font-family: "JetBrains Mono", monospace; }
+
+  /* footer keyword tags */
+  .kws { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 22px; }
+
+  /* Q-style illustration */
+  .illust {
+    position: absolute;
+    bottom: 64px; right: 80px;
+    width: 280px; height: 280px;
+    object-fit: contain;
+    object-position: bottom right;
+    filter: drop-shadow(0 24px 44px rgba(0,0,0,0.55)) drop-shadow(0 0 24px rgba(0,212,255,0.18));
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0;
+    transition: opacity 700ms var(--ease) 300ms;
+  }
+  .slide.active .illust { opacity: 0.96; }
+  .illust.hero {
+    bottom: 60px; right: 80px;
+    top: auto; left: auto;
+    width: 460px; height: 460px;
+    opacity: 0;
+  }
+  .slide.active .illust.hero { opacity: 1; }
+  .illust.center {
+    bottom: 28px; right: auto;
+    left: 50%; top: auto;
+    width: 320px; height: 320px;
+    transform: translateX(-50%);
+    opacity: 0;
+    mix-blend-mode: screen;
+  }
+  .slide.active .illust.center { opacity: 0.85; }
+  .illust.top-right {
+    bottom: auto; top: 96px;
+    width: 220px; height: 220px;
+  }
+  .illust.bottom-left {
+    right: auto; left: 80px;
+    width: 240px; height: 240px;
+  }
+</style>
+</head>
+<body>
+
+<div class="deck" id="deck">
+
+<!-- 1. COVER -->
+<section class="slide cover active" data-i="1" data-img="book5-images/01-cover.png" data-img-class="hero">
+  <div class="cover-art"></div>
+  <div class="corner reveal">
+    <div>Information Security Series</div>
+    <div><b>2026 · Spring</b></div>
+  </div>
+  <div class="meta reveal">
+    <span><b>Book 5</b></span>
+    <span>Microsoft / Windows Server 2022</span>
+    <span>30 SLIDES</span>
+  </div>
+  <h1 class="reveal d1">
+    Managing<br/>
+    <span class="grad-text">Security</span> with<br/>
+    Windows Server 2022.
+  </h1>
+  <div class="sub reveal d2">
+    從身分、權限、稽核、主機防護、防火牆、憑證到 DNS——
+    建立伺服器縱深防禦的完整視角。
+  </div>
+  <div class="rule reveal d3"></div>
+</section>
+
+<!-- 2. 報告主軸 -->
+<section class="slide" data-i="2" data-img="book5-images/02-question.png">
+  <div class="strip reveal">
+    <div class="left"><span class="dot"></span><span>opening · 主軸</span></div>
+    <div class="pageno">02 / 30</div>
+  </div>
+  <div class="center-quote">
+    <div class="eyebrow reveal">本場核心提問</div>
+    <div class="q reveal d1">
+      如何讓一台伺服器，<br/>
+      在多層攻擊下<span class="grad-text"> 仍能守住核心？</span>
+    </div>
+    <p class="lead reveal d2">
+      本次不按章節順序講解，而是把 7 章內容重組為「縱深防禦」的視角——
+      看完之後，你能在腦中畫出一張從身分、權限到 DNS 的安全防線地圖。
+    </p>
+  </div>
+</section>
+
+<!-- 3. 全章節地圖 -->
+<section class="slide" data-i="3" data-img="book5-images/03-map.png" data-img-class="top-right">
+  <div class="strip reveal">
+    <div class="left"><span class="dot"></span><span>chapter map · Book 5</span></div>
+    <div class="pageno">03 / 30</div>
+  </div>
+  <div class="content">
+    <div class="eyebrow reveal">全書七章一覽</div>
+    <h2 class="title reveal d1" style="margin-top:14px">Book 5 的 <span class="grad-text">完整地圖</span></h2>
+    <div class="chapter-grid">
+      <div class="chip reveal d2"><div class="num">CH 01</div><h4>安全基礎</h4><p>SID、Security Descriptor、ACL/ACE</p></div>
+      <div class="chip reveal d2"><div class="num">CH 02</div><h4>分享資源</h4><p>Share 與 NTFS 權限模型</p></div>
+      <div class="chip reveal d3"><div class="num">CH 03</div><h4>OS 安全</h4><p>稽核、Local Policy、Defender、UAC</p></div>
+      <div class="chip reveal d3"><div class="num">CH 04</div><h4>Internet / 防火牆</h4><p>Profile、Inbound / Outbound 規則</p></div>
+      <div class="chip reveal d4"><div class="num">CH 05</div><h4>數位憑證</h4><p>PKI、CA、HTTPS 信任</p></div>
+      <div class="chip reveal d4"><div class="num">CH 06</div><h4>AD CS</h4><p>Root / Issuing CA、Auto Enrollment</p></div>
+      <div class="chip reveal d5"><div class="num">CH 07</div><h4>DNS 安全</h4><p>DNSSEC、DANE、DoH</p></div>
+      <div class="chip reveal d5" style="background:linear-gradient(135deg, rgba(0,212,255,0.08), rgba(124,92,255,0.08)); border-color: rgba(0,212,255,0.3);">
+        <div class="num" style="color:var(--accent-2)">SUM</div>
+        <h4>縱深防禦</h4><p>七章拉通成一條防線</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 4. 為什麼重要 -->
+<section class="slide" data-i="4" data-img="book5-images/04-stakes.png">
+  <div class="strip reveal">
+    <div class="left"><span class="dot"></span><span>why · 為什麼伺服器安全是底層邏輯</span></div>
+    <div class="pageno">04 / 30</div>
+  </div>
+  <div class="content">
+    <div class="sp">
+      <div class="left">
+        <div class="eyebrow reveal">stakes</div>
+        <h2 class="reveal d1" style="margin-top:14px">伺服器被攻破，<br/><span class="grad-text-2">不是單機問題</span>。</h2>
+        <p class="reveal d2">當帳號、檔案、DNS、憑證、網域服務全部寄生在伺服器上，
+          一次入侵就是組織級的災難。這就是為什麼安全要從伺服器這層開始談。</p>
+      </div>
+      <div class="right">
+        <div class="ig">
+          <div class="b reveal d2"><div class="icon">ID</div><h5>帳號</h5><p>AD 統管全公司身分</p></div>
+          <div class="b reveal d2"><div class="icon">FS</div><h5>檔案</h5><p>共享資料夾承載業務</p></div>
+          <div class="b reveal d3"><div class="icon">DN</div><h5>DNS</h5><p>所有連線的起點</p></div>
+          <div class="b reveal d3"><div class="icon">CA</div><h5>憑證</h5><p>內部 PKI 的根信任</p></div>
+          <div class="b reveal d4"><div class="icon">GP</div><h5>政策</h5><p>Group Policy 集中下發</p></div>
+          <div class="b reveal d4"><div class="icon">DC</div><h5>網域</h5><p>Kerberos 認證樞紐</p></div>
+          <div class="b reveal d5"><div class="icon">VM</div><h5>服務</h5><p>承載業務系統</p></div>
+          <div class="b reveal d5"><div class="icon">LG</div><h5>日誌</h5><p>稽核與追蹤源頭</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 5. 安全架構圖 -->
+<section class="slide" data-i="5" data-img="book5-images/05-architecture.png" data-img-class="top-right">
+  <div class="strip reveal">
+    <div class="left"><span class="dot"></span><span>architecture · 縱深防禦頂層設計</span></div>
+    <div class="pageno">05 / 30</div>
+  </div>
+  <div class="content">
+    <div class="eyebrow reveal">defense in depth</div>
+    <h2 class="title reveal d1" style="margin-top:14px">一條 <span class="grad-text">安全防線</span>，七個攔截點</h2>
+    <div class="flow" style="margin-top:36px">
+      <div class="node reveal d2"><div class="step">01 · Identity</div><h5>身分</h5><p>SID / DACL / 認證</p></div>
+      <div class="arrow reveal d2">›</div>
+      <div class="node reveal d3"><div class="step">02 · Access</div><h5>權限</h5><p>Share + NTFS</p></div>
+      <div class="arrow reveal d3">›</div>
+      <div class="node reveal d4"><div class="step">03 · Audit</div><h5>稽核</h5><p>SACL · Event Log</p></div>
+      <div class="arrow reveal d4">›</div>
+      <div class="node reveal d5"><div class="step">04 · Host</div><h5>主機</h5><p>Defender · UAC</p></div>
+      <div class="arrow reveal d5">›</div>
+      <div class="node reveal d6"><div class="step">05 · Network</div><h5>防火牆</h5><p>Inbound / Outbound</p></div>
+      <div class="arrow reveal d6">›</div>
+      <div class="node reveal d7"><div class="step">06 · Trust</div><h5>憑證</h5><p>PKI · AD CS</p></div>
+      <div class="arrow reveal d7">›</div>
+      <div class="node reveal d7"><div class="step">07 · Name</div><h5>DNS</h5><p>DNSSEC · DoH</p></div>
+    </div>
+    <p class="lead reveal d7" style="margin-top:36px; max-width:920px">
+      從識別「你是誰」開始，到管控「你能做什麼」、記錄「你做了什麼」，
+      再向外推到網路、信任與名稱解析——每一層都是一道防線。
+    </p>
+  </div>
+</section>
+
+<!-- ===================== Part 1 ===================== -->
+
+<!-- 6. SID -->
+<section class="slide" data-i="6" data-img="book5-images/06-sid.png" data-img-class="bottom-left">
+  <div class="strip reveal">
+    <div class="left"><span class="dot"></span><span>part 01 · 安全基礎 — 身分</span></div>
+    <div class="pageno">06 / 30</div>
+  </div>
+  <div class="content">
+    <div class="sp">
+      <div class="left">
+        <div class="eyebrow reveal">Security Identifier</div>
+        <h2 class="reveal d1" style="margin-top:14px">系統不認名字，<br/><span class="grad-text">只認 SID</span>。</h2>
+        <p class="reveal d2">使用者名稱可改、可刪，但 SID 一旦產生就終生不變。
+          所有權限判斷都是針對 SID，這是 Windows 身分系統的底層邏輯。</p>
+        <div class="kws reveal d3">
+          <span class="tag">唯一性</span>
+          <span class="tag">不可重用</span>
+          <span class="tag">本機 vs 網域</span>
+        </div>
+      </div>
+      <div class="right">
+        <div class="card reveal d2" style="padding:28px">
+          <div class="cap">範例 · SID 結構</div>
+          <div style="font-family:'JetBrains Mono',monospace; font-size:22px; margin-top:14px; color:var(--accent); letter-spacing:0.02em">
+            S-1-5-21-3623811015-3361044348-30300820-1013
+          </div>
+          <table class="table" style="margin-top:18px">
+            <tr><td class="lab">S</td><td>字串以 S 開頭，表示 SID</td></tr>
+            <tr><td class="lab">1</td><td>SID 版本號</td></tr>
+            <tr><td class="lab">5</td><td>授權機構 (NT Authority)</td></tr>
+            <tr><td class="lab">21-...</td><td>網域 / 本機識別碼</td></tr>
+            <tr><td class="lab">1013</td><td>RID — 使用者相對識別碼</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 7. Security Descriptor -->
+<section class="slide" data-i="7" data-img="book5-images/07-descriptor.png" data-img-class="top-right">
+  <div class="strip reveal">
+    <div class="left"><span class="dot"></span><span>part 01 · 安全基礎 — 物件描述</span></div>
+    <div class="pageno">07 / 30</div>
+  </div>
+  <div class="content">
+    <div class="eyebrow reveal">Security Descriptor</div>
+    <h2 class="title reveal d1" style="margin-top:14px">每個 <span class="grad-text">物件</span> 都帶著三張身分證</h2>
+    <p class="lead reveal d2" style="margin-top:14px">檔案、資料夾、印表機、登錄機碼……
+      所有 Windows 物件都附有 Security Descriptor，描述它的擁有者、誰能存取、哪些動作要稽核。</p>
+    <div class="three" style="margin-top:36px">
+      <div class="card reveal d3">
+        <div class="cap">01 · OWNER</div>
+        <h4>擁有者</h4>
+        <p>記錄物件的擁有 SID。擁有者預設能修改自己的 DACL，是物件的最終裁量者。</p>
+      </div>
+      <div class="card reveal d4">
+        <div class="cap">02 · DACL</div>
+        <h4>Discretionary ACL</h4>
+        <p>由一條條 ACE 組成，定義哪些 SID 可以做哪些動作——讀、寫、執行、刪除。</p>
+      </div>
+      <div class="card reveal d5">
+        <div class="cap">03 · SACL</div>
+        <h4>System ACL</h4>
+        <p>稽核用 ACL。指定哪些 SID 對物件的哪些操作需要被寫入安全事件日誌。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 8. DACL vs SACL -->
+<section class="slide" data-i="8" data-img="book5-images/08-dacl-sacl.png" data-img-class="top-right">
+  <div class="strip reveal">
+    <div class="left"><span class="dot"></span><span>part 01 · 存取 vs 稽核</span></div>
+    <div class="pageno">08 / 30</div>
+  </div>
+  <div class="content">
+    <div class="eyebrow reveal">DACL vs SACL</div>
+    <h2 class="title reveal d1" style="margin-top:14px">一個管 <span class="grad-text">能不能做</span>，一個管 <span class="grad-text-2">有沒有被記</span></h2>
+    <div class="vs" style="margin-top:36px">
+      <div class="side reveal d2">
+        <div class="name">DACL</div>
+        <h3>誰可以動我？</h3>
+        <ul>
+          <li>定義 SID 的允許 / 拒絕清單</li>
+          <li>缺少 ACE = 預設拒絕</li>
+          <li>顯式拒絕優先於允許</li>
+          <li>系統存取前必查 DACL</li>
+        </ul>
+      </div>
+      <div class="mid">vs</div>
+      <div class="side alt reveal d3">
+        <div class="name">SACL</div>
+        <h3>誰動了我？</h3>
+        <ul>
+          <li>定義要稽核的 SID 與動作</li>
+          <li>寫入 Security Event Log</li>
+          <li>支援成功 / 失敗分別記錄</li>
+          <li>需配合稽核原則才生效</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 9. ACL / ACE -->
+<section class="slide" data-i="9" data-img="book5-images/09-acl.png" data-img-class="top-right">
+  <div class="strip reveal">
+    <div class="left"><span class="dot"></span><span>part 01 · 權限的顆粒度</span></div>
+    <div class="pageno">09 / 30</div>
+  </div>
+  <div class="content">
+    <div class="sp">
+      <div class="left">
+        <div class="eyebrow reveal">ACL / ACE</div>
+        <h2 class="reveal d1" style="margin-top:14px">權限不是「一句話」，<br/>而是 <span class="grad-text">一條條規則</span>。</h2>
+        <p class="reveal d2">把 ACL 想成一份檢核清單，每一條 ACE 是其中一行——
+          指明「哪個 SID、什麼動作、允許還是拒絕」。系統按順序逐條判定。</p>
+      </div>
+      <div class="right">
+        <div class="card reveal d2" style="padding:0">
+          <div style="padding:18px 22px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center">
+            <span class="mono" style="color:var(--muted); font-size:13px">FILE · Report.xlsx · DACL</span>
+            <span class="tag">5 ACE</span>
+          </div>
+          <div>
+            <div style="display:grid; grid-template-columns:80px 1fr 110px 110px; padding:14px 22px; border-bottom:1px solid var(--border); align-items:center">
+              <span class="mono" style="color:var(--dim); font-size:12px">#01</span>
+              <span>SYSTEM</span>
+              <span class="tag">Full Ctrl</span>
+              <span class="tag good">ALLOW</span>
+            </div>
+            <div style="display:grid; grid-template-columns:80px 1fr 110px 110px; padding:14px 22px; border-bottom:1px solid var(--border); align-items:center">
+              <span class="mono" style="color:var(--dim); font-size:12px">#02</span>
+              <span>Administrators</span>
+              <span class="tag">Full Ctrl</span>
+              <span class="tag good">ALLOW</span>
+            </div>
+            <div style="display:grid; grid-template-columns:80px 1fr 110px 110px; padding:14px 22px; border-bottom:1px solid var(--border); align-items:center">
+              <span class="mono" style="color:var(--dim); font-size:12px">#03</span>
+              <span>Finance Dept</span>
+              <span class="tag">Read</span>
+              <span class="tag good">ALLOW</span>
+            </div>
+            <div style="display:grid; grid-template-columns:80px 1fr 110px 110px; padding:14px 22px; border-bottom:1px solid var(--border); align-items:center">
+              <span class="mono" style="color:var(--dim); font-size:12px">#04</span>
+              <span>Intern Group</span>
+              <span class="tag">Write</span>
+              <span class="tag danger">DENY</span>
+            </div>
+            <div style="display:grid; grid-template-columns:80px 1fr 110px 110px; padding:14px 22px; align-items:center">
+              <span class="mono" style="color:var(--dim); font-size:12px">#05</span>
+              <span>Authenticated Users</span>
+              <span class="tag">Read</span>
+              <span class="tag good">ALLOW</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 10. 第一段小結 -->
+<section class="slide" data-i="10" data-img="book5-images/10-summary1.png" data-img-class="top-right">
+  <div class="strip reveal">
+    <div class="left"><span class="dot"></span><span>part 01 · 小結</span></div>
+    <div class="pageno">10 / 30</div>
+  </div>
+  <div class="closing">
+    <div class="eyebrow reveal">summary · 安全基礎三句話</div>
+    <div class="big reveal d1">
+      <em>誰是誰</em>，<em>誰能做什麼</em>，<em>誰做了什麼</em>。
+    </div>
+    <div class="three" style="margin-top:24px">
+      <div class="card reveal d2"><div class="cap">SID</div><h4>身分</h4><p>系統識別你的唯一 ID。</p></div>
+      <div class="card reveal d3"><div class="cap">DACL</div><h4>權限</h4><p>定義你能做的每一個動作。</p></div>
+      <div class="card reveal d4"><div class="cap">SACL</div><h4>稽核</h4><p>記錄你做過的每一次嘗試。</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== Part 2 ===================== -->
+
+<!-- 11. 共享資料夾的目的 -->
+<section class="slide" data-i="11" data-img="book5-images/11-shared-folder.png" data-img-class="bottom-left">
+  <div class="strip reveal">
+    <div class="left"><span class="dot"></span><span>part 02 · 共享資源</span></div>
+    <div class="pageno">11 / 30</div>
+  </div>
+  <div class="content">
+    <div class="sp">
+      <div class="left">
+        <div class="eyebrow reveal">Shared Folder</div>
+        <h2 class="reveal d1" style="margin-top:14px"><span class="grad-text">不登入伺服器</span>，<br/>也能拿到資源。</h2>
+        <p class="reveal d2">使用者透過 UNC 路徑直接連到伺服器分享，
+          這是共享資料夾的價值——但便利的另一面，是更廣的攻擊面。</p>
+      </div>
+      <div class="right">
+        <div class="card reveal d2" style="padding:32px; display:flex; flex-direction:column; gap:18px">
+          <div class="cap">UNC PATH</div>
+          <div style="font-family:'JetBrains Mono',monospace; font-size:36px; color:var(--accent); letter-spacing:-0.01em">
+            \\server01\share
+          </div>
+          <div style="height:1px; background:var(--border)"></div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:18px">
+            <div><div class="cap">\\</div><p style="color:var(--muted); margin-top:6px; font-size:14px">網路通訊協定識別</p></div>
+            <div><div class="cap">SERVER01</div><p style="color:var(--muted); margin-top:6px; font-size:14px">主機名稱或 IP</p></div>
+            <div><div class="cap">share</div><p style="color:var(--muted); margin-top:6px; font-size:14px">分享名稱（非實體路徑）</p></div>
+            <div><div class="cap">protocol</div><p style="color:var(--muted); margin-top:6px; font-size:14px">SMB 3.1.1 (Server 2022)</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 12. Share Permission -->
+<section class="slide" data-i="12" data-img="book5-images/12-share-perm.png" data-img-class="top-right">
+  <div class="strip reveal">
+    <div class="left"><span class="dot"></span><span>part 02 · Share Permission</span></div>
+    <div class="pageno">12 / 30</div>
+  </div>
+  <div class="content">
+    <div class="eyebrow reveal">Share Permission</div>
+    <h2 class="title reveal d1" style="margin-top:14px">分享入口的 <span class="grad-text">三層門</span></h2>
+    <p class="lead reveal d2" style="margin-top:14px">Share 權限只在「網路存取」這條路徑生效，本機登入時不會被檢查。
+      它是一道粗顆粒度的閘門。</p>
+    <div class="three" style="margin-top:36px">
+      <div class="card reveal d3">
+        <div class="cap">LEVEL 1</div>
+        <h4 style="color:var(--good)">Read</h4>
+        <p>檢視檔案、執行程式、瀏覽子資料夾。最常見的最小授權。</p>
+      </div>
+      <div class="card reveal d4">
+        <div class="cap">LEVEL 2</div>
+        <h4 style="color:var(--warn)">Change</h4>
+        <p>讀取 + 建立、修改、刪除檔案與資料夾。等同一般使用者操作。</p>
+      </div>
+      <div class="card reveal d5">
+        <div class="cap">LEVEL 3</div>
+        <h4 style="color:var(--danger)">Full Control</h4>
+        <p>Change + 變更權限與接管擁有權。除管理員外應極力避免授予。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 13. NTFS Permission -->
+<section class="slide" data-i="13" data-img="book5-images/13-ntfs-perm.png" data-img-class="top-right">
+  <div class="strip reveal">
+    <div class="left"><span class="dot"></span><span>part 02 · NTFS Permission</span></div>
+    <div class="pageno">13 / 30</div>
+  </div>
+  <div class="content">
+    <div class="eyebrow reveal">NTFS Permission</div>
+    <h2 class="title reveal d1" style="margin-top:14px"><span class="grad-text">更細顆粒度</span>，本機與網路都吃</h2>
+    <div class="ig" style="margin-top:36px; grid-template-columns:repeat(3,1fr)">
+      <div class="b reveal d2"><div class="icon">FC</div><h5>Full Control</h5><p>所有動作 + 改權限 + 接管擁有權。</p></div>
+      <div class="b reveal d2"><div class="icon">MD</div><h5>Modify</h5><p>讀寫、刪除自己建立的檔案，不能改權限。</p></div>
+      <div class="b reveal d3"><div class="icon">RX</div><h5>Read &amp; Execute</h5><p>讀取並可執行檔案，最常見的開放等級。</p></div>
+      <div class="b reveal d3"><div class="icon">LS</div><h5>List Folder</h5><p>僅瀏覽目錄結構，不開啟內容。</p></div>
+      <div class="b reveal d4"><div class="icon">RD</div><h5>Read</h5><p>讀取檔案內容與屬性。</p></div>
+      <div class="b reveal d4"><div class="icon">WR</div><h5>Write</h5><p>建立新檔、附加內容，不刪不執行。</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 14. Share vs NTFS 比較 -->
+<section class="slide" data-i="14" data-img="book5-images/14-vs.png" data-img-class="top-right">
+  <div class="strip reveal">
+    <div class="left"><span class="dot"></span><span>part 02 · 對比</span></div>
+    <div class="pageno">14 / 30</div>
+  </div>
+  <div class="content">
+    <div class="eyebrow reveal">share vs ntfs</div>
+    <h2 class="title reveal d1" style="margin-top:14px">兩種權限，<span class="grad-text">職責不同</span></h2>
+    <div class="card reveal d2" style="margin-top:32px; padding:0">
+      <table class="table">
+        <thead><tr>
+          <th></th>
+          <th style="color:var(--accent)">Share Permission</th>
+          <th style="color:var(--accent-2)">NTFS Permission</th>
+        </tr></thead>
+        <tbody>
+          <tr><td class="lab">控制範圍</td><td>僅網路存取生效</td><td>本機 + 網路同時生效</td></tr>
+          <tr><td class="lab">顆粒度</td><td>粗（3 級）</td><td>細（6+ 細分項）</td></tr>
+          <tr><td class="lab">適用對象</td><td>整個分享進入點</td><td>單一檔案 / 資料夾</td></tr>
+          <tr><td class="lab">繼承機制</td><td>不支援精細繼承</td><td>支援父子繼承與覆蓋</td></tr>
+          <tr><td class="lab">稽核能力</td><td>不支援 SACL</td><td>完整 SACL 支援</td></tr>
+          <tr><td class="lab">儲存位置</td><td>SAM / Registry</td><td>檔案系統 metadata</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- 15. Effective Permission -->
+<section class="slide" data-i="15" data-img="book5-images/15-effective.png" data-img-class="top-right">
+  <div class="strip reveal">
+    <div class="left"><span class="dot"></span><span>part 02 · 實際生效</span></div>
+    <div class="pageno">15 / 30</div>
+  </div>
+  <div class="content">
+    <div class="eyebrow reveal">Effective Permission</div>
+    <h2 class="title reveal d1" style="margin-top:14px">兩道閘門 <span class="grad-text">取交集</span></h2>
+    <p class="lead reveal d2" style="margin-top:14px">使用者透過網路存取時，
+      Share 與 NTFS 兩種權限都會檢查。最後實際生效的，是<strong style="color:var(--accent)">較嚴格</strong>的那一邊。</p>
+    <div class="flow reveal d3" style="margin-top:48px">
+      <div class="node" style="border-color:rgba(0,212,255,0.3)">
+        <div class="step" style="color:var(--accent)">Share</div>
+        <h5 style="margin-top:6px; font-size:24px">Full Control</h5>
+        <p>網路入口開到最大。</p>
+      </div>
+      <div class="arrow" style="font-size:28px">∩</div>
+      <div class="node" style="border-color:rgba(124,92,255,0.3)">
+        <div class="step" style="color:var(--accent-2)">NTFS</div>
+        <h5 style="margin-top:6px; font-size:24px">Read</h5>
+        <p>檔案本體只允許讀。</p>
+      </div>
+      <div class="arrow" style="font-size:28px">=</div>
+      <div class="node glow" style="background:linear-gradient(135deg, rgba(0,212,255,0.12), rgba(124,92,255,0.12)); border-color:rgba(0,232,154,0.4)">
+        <div class="step" style="color:var(--good)">Effective</div>
+        <h5 style="margin-top:6px; font-size:24px; color:var(--good)">Read</h5>
+        <p>較嚴格者勝。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 16. 權限案例 -->
+<section class="slide" data-i="16" data-img="book5-images/16-case.png" data-img-class="top-right">
+  <div class="strip reveal">
+    <div class="left"><span class="dot"></span><span>part 02 · 案例</span></div>
+    <div class="pageno">16 / 30</div>
+  </div>
+  <div class="content">
+    <div class="eyebrow reveal">case study</div>
+    <h2 class="title reveal d1" style="margin-top:14px">財務資料夾 <span class="grad-text">FY26 / Reports</span></h2>
+    <div class="two" style="margin-top:32px">
+      <div class="card reveal d2">
+        <div class="cap">setup</div>
+        <h4>初始設定</h4>
+        <div class="stack" style="margin-top:18px">
+          <div style="display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid var(--border)">
+            <span class="mono" style="color:var(--muted); font-size:13px">SHARE</span>
+            <span><span class="tag">Everyone</span> <span class="tag warn">Full Control</span></span>
+          </div>
+          <div style="display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid var(--border)">
+            <span class="mono" style="color:var(--muted); font-size:13px">NTFS</span>
+            <span><span class="tag">Finance</span> <span class="tag good">Read</span></span>
+          </div>
+          <div style="display:flex; justify-content:space-between; padding:10px 0">
+            <span class="mono" style="color:var(--muted); font-size:13px">NTFS</span>
+            <span><span class="tag">Others</span> <span class="tag danger">No Access</span></span>
+          </div>
+        </div>
+      </div>
+      <div class="card reveal d3" style="border-color:rgba(0,232,154,0.3)">
+        <div class="cap" style="color:var(--good)">result</div>
+        <h4>實際結果</h4>
+        <ul style="list-style:none; margin-top:18px; display:grid; gap:12px">
+          <li style="display:grid; grid-template-columns:24px 1fr; gap:10px"><span style="color:var(--good)">›</span><span>財務人員：可讀取，無法修改</span></li>
+          <li style="display:grid; grid-template-columns:24px 1fr; gap:10px"><span style="color:var(--danger)">›</span><span>非財務人員：完全看不到</span></li>
+          <li style="display:grid; grid-template-columns:24px 1fr; gap:10px"><span style="color:var(--muted)">›</span><span>Share 雖然全開，但 NTFS 收緊整體結果</span></li>
+        </ul>
+        <p style="margin-top:18px; color:var(--accent); font-weight:500">⇢ 嚴格端決勝負</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 17. 最佳實務 -->
+<section class="slide" data-i="17" data-img="book5-images/17-best.png" data-img-class="top-right">
+  <div class="strip reveal">
+    <div class="left"><span class="dot"></span><span>part 02 · 最佳實務</span></div>
+    <div class="pageno">17 / 30</div>
+  </div>
+  <div class="content">
+    <div class="eyebrow reveal">best practice</div>
+    <h2 class="title reveal d1" style="margin-top:14px">Share <span class="grad-text">放寬</span>，NTFS <span class="grad-text-2">細控</span></h2>
+    <ol class="nlist reveal d2" style="margin-top:32px">
+      <li><span class="n">01</span><div><h5>Share 設為 Authenticated Users · Full Control</h5><p>避免在分享層做精細管控，否則維護成本高且容易踩雷。</p></div></li>
+      <li><span class="n">02</span><div><h5>NTFS 採「群組授權，使用者繼承」</h5><p>建立角色群組（Finance / HR / R&amp;D），把人放進群組，不要直接授權給個人。</p></div></li>
+      <li><span class="n">03</span><div><h5>最小權限原則（Least Privilege）</h5><p>每個群組只給「剛好夠用」的權限。Full Control 留給管理員。</p></div></li>
+      <li><span class="n">04</span><div><h5>避免使用 Everyone</h5><p>用 Authenticated Users 取代，至少要求過身分驗證才能進入。</p></div></li>
+    </ol>
+  </div>
+</section>
+
+<!-- ===================== Part 3 ===================== -->
+
+<!-- 18. 為什麼需要稽核 -->
+<section class="slide" data-i="18" data-img="book5-images/18-audit-why.png">
+  <div class="strip reveal">
+    <div class="left"><span class="dot"></span><span>part 03 · 稽核與本機政策</span></div>
+    <div class="pageno">18 / 30</div>
+  </div>
+  <div class="content">
+    <div class="center-quote">
+      <div class="eyebrow reveal">why audit</div>
+      <div class="q reveal d1">
+        防得住，<span class="grad-text">是運氣</span>；<br/>
+        看得見，<span class="grad-text-2">才是能力</span>。
+      </div>
+      <p class="lead reveal d2">稽核的價值不在「擋掉攻擊」，而在事件發生後——
+        你能在多短時間內回答「誰、什麼時候、做了什麼」這三個問題。</p>
+    </div>
+  </div>
+</section>
+
+<!-- 19. Audit Policy -->
+<section class="slide" data-i="19" data-img="book5-images/19-audit-cat.png" data-img-class="top-right">
+  <div class="strip reveal">
+    <div class="left"><span class="dot"></span><span>part 03 · Audit Policy</span></div>
+    <div class="pageno">19 / 30</div>
+  </div>
+  <div class="content">
+    <div class="eyebrow reveal">audit categories</div>
+    <h2 class="title reveal d1" style="margin-top:14px">九大稽核類別，<span class="grad-text">看清全棧</span></h2>
+    <div class="ig" style="margin-top:32px">
+      <div class="b reveal d2"><div class="icon">AL</div><h5>Account Logon</h5><p>網域控制器上的認證事件。</p></div>
+      <div class="b reveal d2"><div class="icon">LG</div><h5>Logon Events</h5><p>本機登入 / 登出記錄。</p></div>
+      <div class="b reveal d3"><div class="icon">OA</div><h5>Object Access</h5><p>檔案、登錄機碼存取（需 SACL）。</p></div>
+      <div class="b reveal d3"><div class="icon">PC</div><h5>Policy Change</h5><p>安全政策、稽核設定變更。</p></div>
+      <div class="b reveal d4"><div class="icon">PU</div><h5>Privilege Use</h5><p>使用敏感權限的行為。</p></div>
+      <div class="b reveal d4"><div class="icon">AM</div><h5>Account Mgmt</h5><p>使用者、群組建立 / 修改 / 刪除。</p></div>
+      <div class="b reveal d5"><div class="icon">DS</div><h5>Directory Service</h5><p>AD 物件存取。</p></div>
+      <div class="b reveal d5"><div class="icon">PT</div><h5>Process Track</h5><p>處理程序建立 / 終止。</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 20. Local Security Policy -->
+<section class="slide" data-i="20" data-img="book5-images/20-local-policy.png" data-img-class="top-right">
+  <div class="strip reveal">
+    <div class="left"><span class="dot"></span><span>part 03 · Local Policy</span></div>
+    <div class="pageno">20 / 30</div>
+  </div>
+  <div class="content">
+    <div class="eyebrow reveal">Local Security Policy</div>
+    <h2 class="title reveal d1" style="margin-top:14px"><span class="grad-text">單機安全</span>的四大支柱</h2>
+    <div class="hier" style="margin-top:24px">
+      <div class="reveal d2 row"><div class="label">Password Policy</div><div><h5>密碼政策</h5><p>長度、複雜度、最短 / 最長使用期限、歷史記錄——構築最基本的帳號強度。</p></div></div>
+      <div class="reveal d3 row"><div class="label">Account Lockout</div><div><h5>帳號鎖定</h5><p>失敗門檻 + 鎖定時間，反制暴力破解；伺服器通常設 5 次失敗鎖定 15 分鐘。</p></div></div>
+      <div class="reveal d4 row"><div class="label">User Rights</div><div><h5>使用者權限指派</h5><p>誰能本機登入、誰能透過遠端桌面、誰能關機——比 ACL 更上層的特權控制。</p></div></div>
+      <div class="reveal d5 row"><div class="label">Security Options</div><div><h5>安全選項</h5><p>數十項細部設定，從 SMB 簽章到 LDAP 加密，定義主機在網路上的安全姿態。</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 21. Group Policy 優先性 -->
+<section class="slide" data-i="21" data-img="book5-images/21-lsdou.png" data-img-class="top-right">
+  <div class="strip reveal">
+    <div class="left"><span class="dot"></span><span>part 03 · 政策優先性</span></div>
+    <div class="pageno">21 / 30</div>
+  </div>
+  <div class="content">
+    <div class="eyebrow reveal">policy precedence</div>
+    <h2 class="title reveal d1" style="margin-top:14px">LSDOU — 政策的 <span class="grad-text">套用順序</span></h2>
+    <p class="lead reveal d2" style="margin-top:14px">本機先套用，網域政策後覆蓋。後到的會贏，
+      所以網域 Group Policy 永遠是「拉通對齊」的最終裁判。</p>
+    <div class="flow reveal d3" style="margin-top:40px">
+      <div class="node"><div class="step">L</div><h5>Local</h5><p>本機原則最先套用</p></div>
+      <div class="arrow">›</div>
+      <div class="node"><div class="step">S</div><h5>Site</h5><p>站台層級政策</p></div>
+      <div class="arrow">›</div>
+      <div class="node"><div class="step">D</div><h5>Domain</h5><p>網域層級政策</p></div>
+      <div class="arrow">›</div>
+      <div class="node"><div class="step">OU</div><h5>OU</h5><p>組織單位逐層下推</p></div>
+      <div class="arrow" style="color:var(--good)">⇒</div>
+      <div class="node glow" style="border-color:rgba(0,232,154,0.4)"><div class="step" style="color:var(--good)">FINAL</div><h5 style="color:var(--good)">生效</h5><p>後套用者覆蓋前者</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== Part 4 ===================== -->
+
+<!-- 22. Windows Security App -->
+<section class="slide" data-i="22" data-img="book5-images/22-windows-security.png" data-img-class="top-right">
+  <div class="strip reveal">
+    <div class="left"><span class="dot"></span><span>part 04 · 主機防護</span></div>
+    <div class="pageno">22 / 30</div>
+  </div>
+  <div class="content">
+    <div class="eyebrow reveal">Windows Security</div>
+    <h2 class="title reveal d1" style="margin-top:14px">所有主機防護的 <span class="grad-text">控制台</span></h2>
+    <p class="lead reveal d2" style="margin-top:14px">Server 2022 把分散的安全功能集中到一個 App，
+      讓系統管理員一眼看完所有安全模組的健康狀態。</p>
+    <div class="four row4" style="margin-top:32px">
+      <div class="card reveal d3"><div class="cap">module 01</div><h4>Virus &amp; Threat</h4><p>Defender 防毒、即時保護、勒索軟體控管。</p></div>
+      <div class="card reveal d3"><div class="cap">module 02</div><h4>Firewall</h4><p>三大 Profile 與進階規則設定入口。</p></div>
+      <div class="card reveal d4"><div class="cap">module 03</div><h4>App &amp; Browser</h4><p>SmartScreen、Exploit Protection。</p></div>
+      <div class="card reveal d4"><div class="cap">module 04</div><h4>Device Security</h4><p>核心隔離、TPM 狀態、安全處理器。</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 23. Microsoft Defender -->
+<section class="slide" data-i="23" data-img="book5-images/23-defender.png" data-img-class="bottom-left">
+  <div class="strip reveal">
+    <div class="left"><span class="dot"></span><span>part 04 · Defender</span></div>
+    <div class="pageno">23 / 30</div>
+  </div>
+  <div class="content">
+    <div class="sp">
+      <div class="left">
+        <div class="eyebrow reveal">Microsoft Defender</div>
+        <h2 class="reveal d1" style="margin-top:14px">不只是<br/><span class="grad-text">「防毒軟體」</span>。</h2>
+        <p class="reveal d2">Server 2022 的 Defender 內建勒索軟體控制、雲端遞交、行為分析，
+          並可串接 Defender for Endpoint 形成完整 EDR 閉環。</p>
+      </div>
+      <div class="right stack">
+        <div class="card reveal d2"><div class="cap">real-time</div><h4>即時保護</h4><p>監控檔案存取、處理程序行為，偵測異常即時隔離。</p></div>
+        <div class="card reveal d3"><div class="cap">scheduled</div><h4>排程掃描</h4><p>離峰時段全盤 / 快速掃描，搭配雲端遞交可疑樣本。</p></div>
+        <div class="card reveal d4"><div class="cap">ransomware</div><h4>受控資料夾存取</h4><p>白名單應用程式才能寫入指定資料夾，阻擋勒索軟體加密行為。</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 24. UAC -->
+<section class="slide" data-i="24" data-img="book5-images/24-uac.png" data-img-class="top-right">
+  <div class="strip reveal">
+    <div class="left"><span class="dot"></span><span>part 04 · UAC</span></div>
+    <div class="pageno">24 / 30</div>
+  </div>
+  <div class="content">
+    <div class="eyebrow reveal">User Account Control</div>
+    <h2 class="title reveal d1" style="margin-top:14px">權限提升的 <span class="grad-text">最後一道確認</span></h2>
+    <p class="lead reveal d2" style="margin-top:14px">即使是 Administrator 帳號，平時也以標準 token 運行。
+      只有當動作需要系統管理員權限時，才彈出 UAC 提示——這是「以最小權限為預設」的設計。</p>
+    <div class="three" style="margin-top:36px">
+      <div class="card reveal d3">
+        <div class="cap">step 01</div><h4>Split Token</h4>
+        <p>登入時建立標準 + 管理員兩個 token，預設用標準的。</p>
+      </div>
+      <div class="card reveal d4">
+        <div class="cap">step 02</div><h4>Elevate Prompt</h4>
+        <p>偵測到需要提升的動作（如改系統檔），切換到安全桌面詢問。</p>
+      </div>
+      <div class="card reveal d5">
+        <div class="cap">step 03</div><h4>Audit Trail</h4>
+        <p>提升行為寫入事件日誌，未來可追蹤。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 25. Credential Guard -->
+<section class="slide" data-i="25" data-img="book5-images/25-credential-guard.png" data-img-class="bottom-left">
+  <div class="strip reveal">
+    <div class="left"><span class="dot"></span><span>part 04 · Credential Guard</span></div>
+    <div class="pageno">25 / 30</div>
+  </div>
+  <div class="content">
+    <div class="sp">
+      <div class="left">
+        <div class="eyebrow reveal">Credential Guard</div>
+        <h2 class="reveal d1" style="margin-top:14px">把 <span class="grad-text">密碼摘要</span><br/>關進虛擬保險箱。</h2>
+        <p class="reveal d2">透過 Hyper-V Hypervisor 隔離 LSA，
+          讓 NTLM Hash、Kerberos Ticket 不再活在一般核心記憶體裡——
+          直接斷掉 Pass-the-Hash 攻擊的取材路徑。</p>
+        <div class="kws reveal d3">
+          <span class="tag">VBS</span>
+          <span class="tag">Isolated LSA</span>
+          <span class="tag">Anti Pass-the-Hash</span>
+        </div>
+      </div>
+      <div class="right">
+        <div class="card reveal d2" style="padding:32px">
+          <div class="cap">attack surface</div>
+          <h4 style="margin-top:8px; font-size:24px">傳統 vs Credential Guard</h4>
+          <div class="hier" style="margin-top:18px">
+            <div class="row" style="border-color:rgba(255,85,119,0.3); background:rgba(255,85,119,0.05); padding:14px 18px">
+              <div class="label" style="color:var(--danger)">傳統</div>
+              <div><p style="color:var(--text); font-size:14px; margin:0">LSASS 在主核心記憶體 → mimikatz 抓得到</p></div>
+            </div>
+            <div class="row" style="border-color:rgba(0,232,154,0.3); background:rgba(0,232,154,0.05); padding:14px 18px">
+              <div class="label" style="color:var(--good)">Credential Guard</div>
+              <div><p style="color:var(--text); font-size:14px; margin:0">LSA Isolated 在 VTL1 → 主系統碰不到</p></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 26. Windows Defender Firewall -->
+<section class="slide" data-i="26" data-img="book5-images/26-firewall.png" data-img-class="top-right">
+  <div class="strip reveal">
+    <div class="left"><span class="dot"></span><span>part 04 · 防火牆</span></div>
+    <div class="pageno">26 / 30</div>
+  </div>
+  <div class="content">
+    <div class="eyebrow reveal">Defender Firewall</div>
+    <h2 class="title reveal d1" style="margin-top:14px">三種網路情境，<span class="grad-text">三套規則</span></h2>
+    <div class="three" style="margin-top:36px">
+      <div class="card reveal d2" style="border-color:rgba(0,212,255,0.3)">
+        <div class="cap" style="color:var(--accent)">Domain Profile</div>
+        <h4>網域</h4>
+        <p>主機加入 AD 網域且偵測到 DC 時自動套用。最寬鬆，但仍需精挑細選。</p>
+      </div>
+      <div class="card reveal d3" style="border-color:rgba(255,181,71,0.3)">
+        <div class="cap" style="color:var(--warn)">Private Profile</div>
+        <h4>私人</h4>
+        <p>家用 / 辦公室可信網路。可信任度中等，仍應守住關鍵服務。</p>
+      </div>
+      <div class="card reveal d4" style="border-color:rgba(255,85,119,0.3)">
+        <div class="cap" style="color:var(--danger)">Public Profile</div>
+        <h4>公用</h4>
+        <p>機場、咖啡店等不可信網路。預設全擋，僅放行必要連線。</p>
+      </div>
+    </div>
+    <p class="lead reveal d5" style="margin-top:28px">
+      <strong style="color:var(--text)">原則：</strong>不要把防火牆關掉，
+      要學會針對情境細控，這是 owner 應有的顆粒度意識。
+    </p>
+  </div>
+</section>
+
+<!-- 27. Inbound / Outbound Rules -->
+<section class="slide" data-i="27" data-img="book5-images/27-inbound-outbound.png" data-img-class="top-right">
+  <div class="strip reveal">
+    <div class="left"><span class="dot"></span><span>part 04 · 規則方向</span></div>
+    <div class="pageno">27 / 30</div>
+  </div>
+  <div class="content">
+    <div class="eyebrow reveal">inbound · outbound</div>
+    <h2 class="title reveal d1" style="margin-top:14px">最小開放原則的 <span class="grad-text">兩個方向</span></h2>
+    <div class="vs" style="margin-top:36px">
+      <div class="side reveal d2">
+        <div class="name">⬇ Inbound</div>
+        <h3>從外面進來</h3>
+        <ul>
+          <li>預設拒絕（白名單模式）</li>
+          <li>只放行真正需要的服務埠</li>
+          <li>常開：RDP 3389、SMB 445、HTTP/S 80/443</li>
+          <li>可限制來源 IP 範圍</li>
+        </ul>
+      </div>
+      <div class="mid">›</div>
+      <div class="side alt reveal d3">
+        <div class="name">⬆ Outbound</div>
+        <h3>從裡面出去</h3>
+        <ul>
+          <li>預設允許（黑名單模式）</li>
+          <li>高安全環境可改為預設拒絕</li>
+          <li>用來阻擋木馬連回 C&amp;C</li>
+          <li>搭配 Application 規則更精準</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== Part 5 ===================== -->
+
+<!-- 28. 數位憑證與 PKI -->
+<section class="slide" data-i="28" data-img="book5-images/28-pki.png" data-img-class="top-right">
+  <div class="strip reveal">
+    <div class="left"><span class="dot"></span><span>part 05 · 信任體系</span></div>
+    <div class="pageno">28 / 30</div>
+  </div>
+  <div class="content">
+    <div class="eyebrow reveal">PKI · Certificate</div>
+    <h2 class="title reveal d1" style="margin-top:14px">把 <span class="grad-text">信任</span> 變成可驗證的數學</h2>
+    <div class="two" style="margin-top:32px">
+      <div class="card reveal d2">
+        <div class="cap">building blocks</div>
+        <h4 style="margin-top:8px">公開金鑰加密</h4>
+        <div class="stack" style="margin-top:16px">
+          <div style="display:grid; grid-template-columns:60px 1fr; gap:16px; padding:12px 0; border-bottom:1px solid var(--border)">
+            <span class="tag">Pub</span><span>公鑰可公開分發，用來加密或驗章</span>
+          </div>
+          <div style="display:grid; grid-template-columns:60px 1fr; gap:16px; padding:12px 0; border-bottom:1px solid var(--border)">
+            <span class="tag warn">Pri</span><span>私鑰僅自己持有，用來解密或簽章</span>
+          </div>
+          <div style="display:grid; grid-template-columns:60px 1fr; gap:16px; padding:12px 0">
+            <span class="tag good">CA</span><span>把公鑰與身分綁定後簽發為憑證</span>
+          </div>
+        </div>
+      </div>
+      <div class="card reveal d3">
+        <div class="cap">use cases</div>
+        <h4 style="margin-top:8px">憑證能做什麼</h4>
+        <ul style="list-style:none; margin-top:16px; display:grid; gap:14px">
+          <li><strong style="color:var(--accent)">HTTPS / TLS：</strong>建立瀏覽器與伺服器的加密通道</li>
+          <li><strong style="color:var(--accent)">Code Signing：</strong>確認程式碼未被竄改</li>
+          <li><strong style="color:var(--accent)">S/MIME：</strong>電子郵件加密與簽章</li>
+          <li><strong style="color:var(--accent)">802.1X / VPN：</strong>網路存取的設備身分</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 29. AD CS 架構 -->
+<section class="slide" data-i="29" data-img="book5-images/29-adcs.png" data-img-class="top-right">
+  <div class="strip reveal">
+    <div class="left"><span class="dot"></span><span>part 05 · AD CS</span></div>
+    <div class="pageno">29 / 30</div>
+  </div>
+  <div class="content">
+    <div class="eyebrow reveal">Active Directory Certificate Services</div>
+    <h2 class="title reveal d1" style="margin-top:14px">內部 PKI 的 <span class="grad-text">三層信任鏈</span></h2>
+    <div class="hier" style="margin-top:24px">
+      <div class="reveal d2 row" style="border-color:rgba(0,232,154,0.3)">
+        <div class="label" style="color:var(--good)">Tier 0 · Root CA</div>
+        <div>
+          <h5>離線根憑證機構</h5>
+          <p>整條信任鏈的源頭。發證後關機離線存放，避免私鑰外洩——這是最高優先級的資產。</p>
+        </div>
+      </div>
+      <div class="reveal d3 row" style="border-color:rgba(0,212,255,0.3)">
+        <div class="label" style="color:var(--accent)">Tier 1 · Issuing CA</div>
+        <div>
+          <h5>線上發證機構</h5>
+          <p>實際處理使用者、電腦、服務的憑證請求。可水平擴充並依用途分流，是日常運作的主力。</p>
+        </div>
+      </div>
+      <div class="reveal d4 row" style="border-color:rgba(124,92,255,0.3)">
+        <div class="label" style="color:var(--accent-2)">Tier 2 · Endpoint</div>
+        <div>
+          <h5>使用者 / 電腦 / 服務</h5>
+          <p>透過 Auto Enrollment + Group Policy 自動申請、續發、撤銷憑證，免去人工搬運的顆粒度負擔。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 30. DNSSEC & Conclusion -->
+<section class="slide" data-i="30" data-img="book5-images/30-dnssec.png" data-img-class="top-right">
+  <div class="strip reveal">
+    <div class="left"><span class="dot"></span><span>part 05 · DNS Security · 結論</span></div>
+    <div class="pageno">30 / 30</div>
+  </div>
+  <div class="content">
+    <div class="eyebrow reveal">DNS security &amp; final word</div>
+    <h2 class="title reveal d1" style="margin-top:14px">最後一道防線：<span class="grad-text">名稱解析</span></h2>
+    <div class="three" style="margin-top:28px">
+      <div class="card reveal d2">
+        <div class="cap">protect</div><h4>DNSSEC</h4>
+        <p>對 DNS 回應加上數位簽章，杜絕中間人偽造回應 / 快取毒化。</p>
+      </div>
+      <div class="card reveal d3">
+        <div class="cap">bind</div><h4>DANE</h4>
+        <p>把 TLS 憑證資訊放進 DNS，由 DNSSEC 背書，少依賴公開 CA。</p>
+      </div>
+      <div class="card reveal d4">
+        <div class="cap">encrypt</div><h4>DoH</h4>
+        <p>DNS over HTTPS，整段查詢流量加密，防止 ISP 與中間裝置監聽。</p>
+      </div>
+    </div>
+
+    <div class="closing" style="margin-top:32px; flex:0">
+      <div class="big reveal d5" style="font-size:clamp(28px,3.2vw,40px); border-top:1px solid var(--border); padding-top:28px">
+        Book 5 的核心不是單一工具，<br/>
+        而是用 <span class="grad-text">權限 · 稽核 · 主機 · 防火牆 · 憑證 · DNS</span><br/>
+        把 Windows Server 2022 拉通成一條<strong style="color:var(--text)">完整縱深防禦</strong>。
+      </div>
+      <div class="pillars reveal d6" style="margin-top:8px">
+        <span>Identity</span><span>Access</span><span>Audit</span><span>Host</span><span>Network</span><span>Trust</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<!-- HUD -->
+<div class="hud">
+  <span>← / → · SPACE · HOME · END</span>
+  <div class="progress" id="prog"></div>
+  <span class="counter"><span id="cur">01</span> / <span id="tot">30</span></span>
+</div>
+
+<script>
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  slides.forEach(s => {
+    const src = s.dataset.img;
+    if (!src) return;
+    const img = document.createElement('img');
+    img.className = 'illust' + (s.dataset.imgClass ? ' ' + s.dataset.imgClass : '');
+    img.loading = 'lazy';
+    img.decoding = 'async';
+    img.alt = '';
+    img.dataset.src = src;
+    s.appendChild(img);
+  });
+  function loadNear(idx) {
+    for (let off = -1; off <= 2; off++) {
+      const t = slides[idx + off];
+      if (!t) continue;
+      const im = t.querySelector('img.illust');
+      if (im && !im.src && im.dataset.src) im.src = im.dataset.src;
+    }
+  }
+  const total = slides.length;
+  const cur = document.getElementById('cur');
+  const tot = document.getElementById('tot');
+  const prog = document.getElementById('prog');
+  tot.textContent = String(total).padStart(2, '0');
+  let i = 0;
+
+  function go(n) {
+    i = Math.max(0, Math.min(total - 1, n));
+    slides.forEach((s, idx) => s.classList.toggle('active', idx === i));
+    cur.textContent = String(i + 1).padStart(2, '0');
+    prog.style.setProperty('--p', (i + 1) / total);
+    loadNear(i);
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (['ArrowRight', 'PageDown', ' '].includes(e.key)) { e.preventDefault(); go(i + 1); }
+    else if (['ArrowLeft', 'PageUp'].includes(e.key)) { e.preventDefault(); go(i - 1); }
+    else if (e.key === 'Home') go(0);
+    else if (e.key === 'End') go(total - 1);
+  });
+
+  document.addEventListener('click', (e) => {
+    if (e.target.closest('a, button, input')) return;
+    const x = e.clientX, w = window.innerWidth;
+    if (x > w * 0.6) go(i + 1);
+    else if (x < w * 0.4) go(i - 1);
+  });
+
+  go(0);
+</script>
+</body>
+</html>
