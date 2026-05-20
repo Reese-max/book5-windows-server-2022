@@ -359,6 +359,95 @@ const io = new IntersectionObserver((entries) => {
 
 ---
 
+## 十一、漫畫背景 Deep Dive（這次最有效的視覺武器）
+
+### 11.1 為什麼公式有效（5 個關鍵字句）
+
+| 關鍵字 | 作用 |
+|--------|------|
+| `EXACTLY ONE color accent` | 強制 codex 走 duotone、不要亂塗彩色 |
+| `Heavy ink linework + halftone screentone` | 明確指定 manga 印刷風格、排除水彩油畫 |
+| `Adrian Tomine + Charles Burns + Frank Miller` | 三位漫畫家當參考，codex 知道你要的版本 |
+| `NO photographic realism` | 排除攝影風（容易跑成電影靜照）|
+| `Leave negative space <方位>` | 預留文字 overlay 區域，背景不會搶字 |
+
+### 11.2 跨領域套用範例（換主題不用換結構）
+
+公式不變，只換**場景**與**點綴色**兩個變數：
+
+**金融簡報 — 投資組合風險**
+```
+場景: dollar coins and stock chart graphs floating around a magnifying glass
+       examining a portfolio document at center
+點綴色: emerald green
+NOT: pixel art, photographic
+```
+
+**醫療簡報 — 病歷追蹤**
+```
+場景: anthropomorphic medical chart pages floating with stethoscope wrapping
+       around a magnifying glass examining patient ID at center
+點綴色: medical red
+```
+
+**電商簡報 — 訂單流程**
+```
+場景: cardboard packages floating with arrow trails connecting them through
+       a sorting hub at center, with a clipboard tracking each item
+點綴色: highlighter orange
+```
+
+**法律簡報 — 條款審閱**
+```
+場景: parchment scrolls scattered around an antique stamp pressing down on
+       a contract document at center, gavel resting beside
+點綴色: regal gold
+```
+
+### 11.3 實戰六要點（從 Book 5 踩坑提煉）
+
+1. **SEED 必加** — 否則 codex 對相似 prompt 給同樣圖（這次踩過 4 對重複）
+2. **NOT 排除句尾要寫完整** — 至少寫 `NOT photographic realism, NOT pixel art, NOT 3D render`
+3. **opacity 0.62 才看得到** — 0.28 對 B&W 漫畫太淡，0.45 不夠濃
+4. **負空間方位必指定** — `Leave negative space left/right/bottom/top for text overlay`
+5. **dup 不要並行 retry** — 改序列跑 + 完全不同的場景描述
+6. **疊文字色要提亮** — `--muted` 從 `#8a94ad` → `#c8d2e4` 才不會被漫畫黑色吃掉
+
+### 11.4 漫畫專用 CSS（與一般氛圍照不同）
+
+```css
+.slidebg {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  z-index: -2;
+  transition: opacity 1100ms ease 200ms;
+}
+.slide.active .slidebg { opacity: 0.62; }  /* B&W 漫畫專用，不是氛圍照的 0.28 */
+
+.slide.themed::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg,
+    rgba(7,9,15,0.28) 0%,
+    rgba(7,9,15,0.62) 100%);
+  z-index: -1;
+  pointer-events: none;
+}
+```
+
+**為什麼漫畫風需要這個 CSS 配方**：
+- `opacity: 0.62` ── 漫畫 ink 線條對比強，不夠透就壓不住文字；不夠濃又看不出漫畫感
+- **上薄下濃漸層** ── 上半留漫畫風華麗、下半暗一點讓內文卡片清晰
+- **不要 `mix-blend-mode`** ── 對 B&W 圖會把白色吃掉變透明，破壞漫畫紋理
+
+### 11.5 完整流程一句話：
+
+> 寫公式 → SEED 噪音 → NOT 排除 → 並行 6 張 → md5 驗 unique → 重做 dups（單張序列）→ 部署 → opacity 0.62 → 提亮 muted → push GitHub Pages
+
+---
+
 ## 十、下次直接用
 
 把這份 PROMPT-TEMPLATE.md 丟給 Claude 並說：
