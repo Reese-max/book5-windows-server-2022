@@ -677,6 +677,16 @@
 
     /* Force show all slides in scroll mode */
     .slide .reveal { opacity: 1; transform: none; }
+
+    /* Visual slide images: always visible (no active-gating in scroll mode) */
+    .slide.visual .vimg {
+      opacity: 1 !important;
+      transform: none !important;
+      transition: none;
+    }
+
+    /* Chapter chip underline: always rendered in scroll mode */
+    .chip::after { width: 100% !important; }
   }
 
 </style>
