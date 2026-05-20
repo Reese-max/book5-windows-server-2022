@@ -5,6 +5,33 @@
 
 ---
 
+## ⚡ Quick Start — 這份 md 不是獨立可用的，要配 repo 當 starter
+
+**真正可運行的起點是這個 repo 本身。Fork 它，不要從空白檔開始。**
+
+```bash
+# 1. Fork 整個 repo 當 starter
+gh repo fork Reese-max/book5-windows-server-2022 --clone --remote
+cd book5-windows-server-2022
+
+# 2. 拿 index.html 當骨架（1902 行含完整 CSS class 庫：
+#    .slide / .card / .chip / .ig / .flow / .vs / .hier / .nlist / .table / .vs / .visual 全部都在）
+# 3. 替換 45 個 <section class="slide" data-i="N"> 內容為新主題
+# 4. 把 book5-images/ 裡的 30 張 v*.png 和 6 張 bg-*.png 都重生（§4 + §8）
+# 5. 改 README + 改 partOf() 章節對應（如果章節數量不同）
+# 6. push 到新 repo 啟用 Pages
+```
+
+**為什麼這份 md 單獨用不夠**：
+- ❌ md 沒有完整 HTML `<!DOCTYPE>` / `<html>` 骨架
+- ❌ md 只有 slide 容器/visual/mobile 三段 CSS，缺 7 種 layout component 的完整 class 定義
+- ❌ md §4.2 視覺 prompt 含 `<SCENE>` 等 placeholder，要靠 Claude 智能填
+- ❌ md 沒給每張 v*.png 的場景內容，每次重新編
+
+**有 repo 當底，md 才是「diff guide」告訴你改什麼**。下面章節是參考書，**不是替代品**。
+
+---
+
 ## 一、總體規格
 
 ```
@@ -730,28 +757,36 @@ md5sum book5-images/bg-*.png | awk '{print $2, substr($1,1,8)}'
 
 ---
 
-## 十三、下次直接用
+## 十三、下次直接用（正確流程）
 
-把這份 PROMPT-TEMPLATE.md 丟給 Claude 並說：
+**先 fork 再改**——不要從空白檔開始。給 Claude 這段指令：
 
 ```
-用 https://github.com/Reese-max/book5-windows-server-2022/blob/main/PROMPT-TEMPLATE.md
-這個模板，主題是「<新主題>」，大綱如下：
+我要做一份新簡報，主題是「<新主題>」，大綱如下：
 
-<貼你的大綱>
+<貼大綱>
 
-走完整 11 步 SOP，最後給我 GitHub Pages URL。
+請走以下 11 步流程：
+1. 從 https://github.com/Reese-max/book5-windows-server-2022 fork 一個新 repo（用 gh CLI）
+2. 讀 PROMPT-TEMPLATE.md 了解架構
+3. 讀 index.html 了解現有 CSS class 庫（.card / .chip / .ig / .flow / .vs / .hier / .nlist）
+4. 重寫 30 個文字頁 section 內容對應新主題
+5. 規劃 15 個視覺頁配獨立風格（用 §4.2 風格表挑配對）
+6. 跑 launch-visuals.sh 並行生 15 張視覺圖 + 6 張 B&W 漫畫背景
+7. md5 驗 unique，dup 用 §8.4 重做
+8. 跑 restructure-deck.py 把 30 → 45 頁
+9. 改 partOf() 章節對應（如果章節結構不同）
+10. 改 README + 改 cover slide 主標題副標
+11. push 新 repo + 啟用 Pages + 等 CDN + 給我 URL
 ```
 
-Claude 會自動：
-1. 拆 30 文字頁 outline
-2. 規劃 15 個視覺頁（套 §4.2 風格表）
-3. 並行 codex 生圖 + md5 驗 unique（必要時重做 dup）
-4. Python `restructure-deck.py` 灌 HTML
-5. 並行生 6 張 B&W 漫畫背景
-6. push GitHub + 啟用 Pages
-7. 等 CDN propagation
-8. 給你公開 URL
+**Claude 一次完成需要的關鍵 context**：
+- 這份 md（架構說明書）
+- index.html（HTML/CSS/JS 骨架）
+- book5-images/v*.png（15 視覺頁參考）
+- book5-images/bg-*.png（6 背景參考）
+
+> **不要**叫 Claude 從零寫 HTML/CSS。一定要先 fork repo 當底，否則 1000+ 行 boilerplate 全部要重造，浪費 token + 容易出 bug。
 
 ---
 
