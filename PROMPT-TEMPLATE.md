@@ -5,22 +5,46 @@
 
 ---
 
-## ⚡ Quick Start — 這份 md 不是獨立可用的，要配 repo 當 starter
+## ⚡ Quick Start — 一鍵 bootstrap
 
-**真正可運行的起點是這個 repo 本身。Fork 它，不要從空白檔開始。**
+**最快**：clone 本 repo 然後跑 `bootstrap-new-deck.sh`：
 
 ```bash
-# 1. Fork 整個 repo 當 starter
-gh repo fork Reese-max/book5-windows-server-2022 --clone --remote
+gh repo clone Reese-max/book5-windows-server-2022
 cd book5-windows-server-2022
+chmod +x bootstrap-new-deck.sh
 
-# 2. 拿 index.html 當骨架（1902 行含完整 CSS class 庫：
-#    .slide / .card / .chip / .ig / .flow / .vs / .hier / .nlist / .table / .vs / .visual 全部都在）
-# 3. 替換 45 個 <section class="slide" data-i="N"> 內容為新主題
-# 4. 把 book5-images/ 裡的 30 張 v*.png 和 6 張 bg-*.png 都重生（§4 + §8）
-# 5. 改 README + 改 partOf() 章節對應（如果章節數量不同）
-# 6. push 到新 repo 啟用 Pages
+# 一行起新專案：
+./bootstrap-new-deck.sh <repo-slug> "<topic-title>" "<topic-subtitle>"
+
+# 範例：
+./bootstrap-new-deck.sh kubernetes-security "Kubernetes Security" "從 Pod 到叢集的縱深防禦"
 ```
+
+腳本會自動：
+1. clone Book 5 template 到 `../<repo-slug>`
+2. 重置 git history
+3. `book5-images/` → `images/`（清掉 PNG，留空目錄）
+4. 改 index.html cover h1/sub/title 為新主題
+5. 在 30 文字頁 `.content` + 15 視覺頁 `.vcap` 插 `<!-- TODO -->` 註記指明要改哪裡
+6. 寫新 README + TODO checklist
+7. 初始 commit
+8. （除非 `--no-push`）建立新 public GitHub repo + push + 啟用 Pages
+
+`--no-push` 模式：只在本機 bootstrap、不碰 GitHub，給你檢查後再手動 push。
+
+**手動 fork**（如果你不想自動化）：
+```bash
+gh repo fork Reese-max/book5-windows-server-2022 --clone --remote
+# 然後手動改 cover、清圖、改 partOf()...
+```
+
+**為什麼一定要從這個 repo 當 starter**：
+- index.html 1900+ 行含 7 種 layout component 完整 CSS（`.card` / `.chip` / `.ig` / `.flow` / `.vs` / `.hier` / `.nlist`）
+- JS 控制 slide 切換 + IO lazy load + 手機 RWD 都寫好
+- HUD / 動畫 / transition 不用重發明
+
+下面章節是 reference，告訴你**改什麼、怎麼改**。
 
 **為什麼這份 md 單獨用不夠**：
 - ❌ md 沒有完整 HTML `<!DOCTYPE>` / `<html>` 骨架
