@@ -494,11 +494,15 @@ codex exec ... "SEED-X${RANDOM}... <另一個完全不同的場景>. NOT <...>"
 
 ### 8.5 Python 重構：30 文字頁 → 45 頁（插 15 視覺頁 + 重編號）
 
+> ⚠️ **這是 Book 5「從零造」歷史腳本，fork-then-modify 流程不用跑**（fork 來的 index.html 已經是 45 頁狀態）。
+> 何時用：你不是從 fork 開始、而是手上有別份 30 頁文字簡報想升級成這個 45 頁架構時。
+
 ```python
 # restructure-deck.py
-import io, re
+# 用法: python restructure-deck.py [path-to-html]
+import io, re, sys
 
-PATH = 'book5-windows-server-security.html'
+PATH = sys.argv[1] if len(sys.argv) > 1 else 'index.html'
 
 with io.open(PATH, 'r', encoding='utf-8') as f:
     html = f.read()
@@ -506,15 +510,27 @@ with io.open(PATH, 'r', encoding='utf-8') as f:
 # 找全部 30 個 section
 sect_re = re.compile(r'(<section class="slide(?:\s+[^"]*)?" data-i="(\d+)">.*?</section>)', re.DOTALL)
 matches = list(sect_re.finditer(html))
-assert len(matches) == 30
+assert len(matches) == 30, f"expected 30 sections, got {len(matches)}"
 old_blocks = {int(m.group(2)): m.group(1) for m in matches}
 
 # 視覺頁定義：new_pos -> (vkey, filename, eyebrow, title, caption)
+# 這是 Book 5 的 15 個視覺頁完整映射，新主題依此格式換內容
 visuals = {
-    6:  ('V1', 'v01-name.png', 'visual · 標籤', '視覺頁標題', '一行說明'),
-    8:  ('V2', 'v02-name.png', '...', '...', '...'),
-    # ... 15 行 ...
-    45: ('V15','v15-finale.png', 'visual · 結尾', '...', '...'),
+    6:  ('V1',  'v01-attack-comic.png',         'visual · 攻擊故事',  '攻擊者闖入伺服器',     '一台未補強的伺服器，能在幾分鐘內被滲透。'),
+    8:  ('V2',  'v02-sid-chalkboard.png',       'visual · 結構解剖',  'SID 解剖',             '使用者改名，SID 不變——這是 Windows 身分系統的底層邏輯。'),
+    12: ('V3',  'v03-acl-isometric.png',        'visual · 規則匹配',  'ACL 規則匹配流程',     'ACE 由上而下逐條比對；顯式拒絕優先於允許。'),
+    14: ('V4',  'v04-three-creeds-poster.png',  'visual · 三句口訣',  '安全基礎三句',         '誰是誰、誰能做什麼、誰做了什麼。'),
+    19: ('V5',  'v05-share-ntfs-iso.png',       'visual · 權限交集',  'Share ∩ NTFS',         '兩道閘門取交集，較嚴格者勝出。'),
+    22: ('V6',  'v06-finance-comic.png',        'visual · 案例漫畫',  '財務檔案存取',         'Share 全開、NTFS 收緊到 Finance Read。'),
+    28: ('V7',  'v07-lsdou-stairs.png',         'visual · 套用階梯',  'LSDOU 順序',           'Local → Site → Domain → OU。'),
+    31: ('V8',  'v08-defender-magazine.png',    'visual · EDR 節奏',  'Defender 四步閉環',    '偵測 → 分析 → 隔離 → 回報。'),
+    33: ('V9',  'v09-uac-blueprint.png',        'visual · 雙 Token',  'UAC 提權機制',         '管理員登入拿兩把 token。'),
+    35: ('V10', 'v10-credential-cutaway.png',   'visual · 隔離剖面',  'Credential Guard',     'LSA 關進 VTL1 虛擬保險箱。'),
+    37: ('V11', 'v11-firewall-pixel.png',       'visual · 三場景',    '防火牆三 Profile',     'Domain / Private / Public。'),
+    40: ('V12', 'v12-key-signature.png',        'visual · 非對稱',    '公私鑰簽章驗章',       '公鑰 / 私鑰兩個用途。'),
+    42: ('V13', 'v13-adcs-organigram.png',      'visual · 信任鏈',    'AD CS 三層',           'Root → Issuing → 終端。'),
+    43: ('V14', 'v14-dnssec-chain.png',         'visual · 簽章鏈',    'DNSSEC',               'DNS 每層加數位簽章。'),
+    45: ('V15', 'v15-finale-epic.png',          'visual · 結尾',      '七道防線',             '完整縱深防禦。'),
 }
 
 # 新位置 → 舊位置映射（跳過視覺頁的位置）
