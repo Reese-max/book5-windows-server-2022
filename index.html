@@ -146,12 +146,12 @@
     content: ""; width: 24px; height: 1px; background: var(--accent);
   }
   h1.title {
-    font-size: clamp(48px, 6vw, 88px); font-weight: 900; line-height: 0.95;
+    font-size: clamp(58px, 7.2vw, 108px); font-weight: 900; line-height: 0.95;
     letter-spacing: -0.02em;
   }
-  h2.title { font-size: clamp(36px, 4.4vw, 64px); font-weight: 900; line-height: 1.02; letter-spacing: -0.015em; }
-  h3.title { font-size: clamp(24px, 2.4vw, 36px); font-weight: 700; line-height: 1.15; letter-spacing: -0.01em; }
-  .lead { color: var(--muted); font-size: 18px; line-height: 1.6; max-width: 720px; }
+  h2.title { font-size: clamp(44px, 5.2vw, 76px); font-weight: 900; line-height: 1.02; letter-spacing: -0.015em; }
+  h3.title { font-size: clamp(28px, 2.8vw, 42px); font-weight: 700; line-height: 1.15; letter-spacing: -0.01em; }
+  .lead { color: var(--muted); font-size: 21px; line-height: 1.6; max-width: 820px; }
   .grad-text { background: var(--grad-1); -webkit-background-clip: text; background-clip: text; color: transparent; }
   .grad-text-2 { background: var(--grad-2); -webkit-background-clip: text; background-clip: text; color: transparent; }
 
@@ -172,8 +172,8 @@
     font-family: "JetBrains Mono", monospace; font-size: 11px;
     letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted);
   }
-  .card h4 { font-size: 22px; margin-top: 8px; font-weight: 700; }
-  .card p { color: var(--muted); font-size: 15px; line-height: 1.6; margin-top: 8px; }
+  .card h4 { font-size: 26px; margin-top: 10px; font-weight: 700; }
+  .card p { color: var(--muted); font-size: 17px; line-height: 1.6; margin-top: 10px; }
 
   /* Cover */
   .cover {
@@ -192,8 +192,8 @@
     letter-spacing: -0.035em;
   }
   .cover .sub {
-    margin-top: 28px; font-size: 22px; color: var(--muted); max-width: 760px;
-    font-weight: 400;
+    margin-top: 28px; font-size: 26px; color: var(--muted); max-width: 860px;
+    font-weight: 400; line-height: 1.5;
   }
   .cover .rule {
     margin-top: 56px; width: 220px; height: 3px;
@@ -234,9 +234,9 @@
     background: linear-gradient(180deg, rgba(255,255,255,0.02), transparent);
     position: relative; overflow: hidden;
   }
-  .chip .num { font-family: "Space Grotesk", monospace; font-size: 13px; color: var(--accent); letter-spacing: 0.16em; }
-  .chip h4 { margin-top: 10px; font-size: 19px; font-weight: 700; line-height: 1.25; }
-  .chip p { margin-top: 8px; color: var(--muted); font-size: 13px; line-height: 1.55; }
+  .chip .num { font-family: "Space Grotesk", monospace; font-size: 14px; color: var(--accent); letter-spacing: 0.16em; }
+  .chip h4 { margin-top: 12px; font-size: 23px; font-weight: 700; line-height: 1.25; }
+  .chip p { margin-top: 10px; color: var(--muted); font-size: 16px; line-height: 1.55; }
   .chip::after {
     content: ""; position: absolute; left: 0; bottom: 0; height: 2px; width: 0;
     background: var(--grad-1); transition: width 600ms var(--ease);
@@ -252,16 +252,16 @@
   }
   .nlist li:first-child { border-top: none; }
   .nlist .n {
-    font-family: "Space Grotesk", monospace; font-size: 26px; color: var(--accent);
+    font-family: "Space Grotesk", monospace; font-size: 30px; color: var(--accent);
     font-weight: 700; letter-spacing: -0.02em;
   }
-  .nlist h5 { font-size: 18px; margin-bottom: 4px; }
-  .nlist p { color: var(--muted); font-size: 14px; line-height: 1.55; }
+  .nlist h5 { font-size: 22px; margin-bottom: 6px; }
+  .nlist p { color: var(--muted); font-size: 17px; line-height: 1.55; }
 
   /* Comparison table */
   .table {
     width: 100%; border-collapse: separate; border-spacing: 0;
-    font-size: 15px;
+    font-size: 18px;
   }
   .table th, .table td {
     padding: 14px 18px; text-align: left;
@@ -299,8 +299,8 @@
     font-family: "JetBrains Mono", monospace; font-size: 11px;
     letter-spacing: 0.16em; color: var(--accent); text-transform: uppercase;
   }
-  .flow .node h5 { font-size: 18px; margin-top: 8px; }
-  .flow .node p { color: var(--muted); font-size: 13px; line-height: 1.55; margin-top: 10px; }
+  .flow .node h5 { font-size: 22px; margin-top: 10px; }
+  .flow .node p { color: var(--muted); font-size: 15px; line-height: 1.55; margin-top: 10px; }
   .flow .arrow {
     align-self: center; color: var(--dim); font-size: 22px;
     font-family: "Space Grotesk", monospace;
@@ -313,9 +313,9 @@
     gap: 28px;
   }
   .center-quote .q {
-    font-size: clamp(48px, 6.5vw, 96px);
+    font-size: clamp(56px, 7.5vw, 112px);
     font-weight: 900; line-height: 1.02; letter-spacing: -0.025em;
-    max-width: 1100px;
+    max-width: 1200px;
   }
 
   /* Stat */
@@ -345,8 +345,8 @@
     display: grid; place-items: center;
     color: var(--accent); font-weight: 700; font-family: "Space Grotesk", monospace;
   }
-  .ig .b h5 { margin-top: 14px; font-size: 17px; }
-  .ig .b p { color: var(--muted); font-size: 13px; line-height: 1.55; margin-top: 6px; }
+  .ig .b h5 { margin-top: 16px; font-size: 20px; }
+  .ig .b p { color: var(--muted); font-size: 15px; line-height: 1.55; margin-top: 8px; }
 
   /* Closing */
   .closing {
@@ -354,8 +354,8 @@
     justify-content: center; gap: 28px;
   }
   .closing .big {
-    font-size: clamp(36px, 4.4vw, 60px); font-weight: 900;
-    line-height: 1.1; letter-spacing: -0.02em; max-width: 1100px;
+    font-size: clamp(42px, 5.2vw, 72px); font-weight: 900;
+    line-height: 1.1; letter-spacing: -0.02em; max-width: 1200px;
   }
   .closing .big em { font-style: normal; }
   .closing .pillars {
@@ -376,9 +376,9 @@
     padding: 18px 22px; border: 1px solid var(--border); border-radius: 12px;
     background: var(--surface);
   }
-  .hier .row .label { font-family: "Space Grotesk", monospace; color: var(--accent); font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; align-self: center; }
-  .hier .row h5 { font-size: 18px; }
-  .hier .row p { color: var(--muted); font-size: 14px; margin-top: 4px; line-height: 1.55; }
+  .hier .row .label { font-family: "Space Grotesk", monospace; color: var(--accent); font-size: 14px; letter-spacing: 0.14em; text-transform: uppercase; align-self: center; }
+  .hier .row h5 { font-size: 22px; }
+  .hier .row p { color: var(--muted); font-size: 16px; margin-top: 6px; line-height: 1.55; }
 
   /* VS panel */
   .vs { display: grid; grid-template-columns: 1fr 80px 1fr; gap: 24px; flex: 1; align-items: stretch; }
@@ -390,11 +390,11 @@
     font-family: "Space Grotesk", monospace; font-size: 12px;
     letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent);
   }
-  .vs .side h3 { font-size: 30px; margin-top: 10px; }
-  .vs .side ul { margin-top: 18px; display: grid; gap: 10px; }
+  .vs .side h3 { font-size: 36px; margin-top: 12px; }
+  .vs .side ul { margin-top: 20px; display: grid; gap: 12px; }
   .vs .side li {
-    list-style: none; padding: 10px 0; border-top: 1px dashed var(--border);
-    color: var(--muted); font-size: 14px; line-height: 1.5;
+    list-style: none; padding: 12px 0; border-top: 1px dashed var(--border);
+    color: var(--muted); font-size: 17px; line-height: 1.55;
     display: grid; grid-template-columns: 16px 1fr; gap: 10px;
   }
   .vs .side li:first-child { border-top: none; }
@@ -463,13 +463,13 @@
   }
   .slide.visual .vtitle {
     margin-top: 14px;
-    font-size: clamp(28px, 3.2vw, 42px);
+    font-size: clamp(34px, 3.8vw, 50px);
     font-weight: 800; line-height: 1.05; letter-spacing: -0.015em;
   }
   .slide.visual .vbody {
-    margin-top: 10px;
-    color: rgba(232,236,244,0.85);
-    font-size: 15px; line-height: 1.55;
+    margin-top: 12px;
+    color: rgba(232,236,244,0.88);
+    font-size: 18px; line-height: 1.55;
   }
 
   /* Q-style illustration — small accent badges (unused, kept for safety) */
@@ -542,19 +542,19 @@
     }
     .strip .pageno { white-space: nowrap; }
 
-    h1.title { font-size: clamp(30px, 8vw, 44px); line-height: 1.05; }
-    h2.title { font-size: clamp(26px, 7vw, 38px); line-height: 1.1; }
-    h3.title { font-size: 20px; }
+    h1.title { font-size: clamp(36px, 9.5vw, 54px); line-height: 1.05; }
+    h2.title { font-size: clamp(30px, 8vw, 46px); line-height: 1.1; }
+    h3.title { font-size: 24px; }
 
-    .cover h1 { font-size: clamp(40px, 11.5vw, 72px) !important; line-height: 0.95; }
-    .cover .meta { font-size: 11px; flex-wrap: wrap; gap: 10px; margin-bottom: 22px; }
-    .cover .sub { font-size: 16px; margin-top: 18px; max-width: none; }
+    .cover h1 { font-size: clamp(48px, 13vw, 84px) !important; line-height: 0.95; }
+    .cover .meta { font-size: 12px; flex-wrap: wrap; gap: 10px; margin-bottom: 22px; }
+    .cover .sub { font-size: 18px; margin-top: 20px; max-width: none; }
     .cover .corner { display: none; }
     .cover-art { display: none; }
     .cover .rule { margin-top: 28px; width: 140px; height: 2px; }
 
-    .lead { font-size: 14px; line-height: 1.55; }
-    .eyebrow { font-size: 10px; letter-spacing: 0.16em; }
+    .lead { font-size: 16px; line-height: 1.6; }
+    .eyebrow { font-size: 11px; letter-spacing: 0.16em; }
     .eyebrow::before { width: 16px; }
 
     .content { padding-top: 18px; flex: none; }
@@ -602,38 +602,38 @@
       flex: none;
     }
     .chip { padding: 14px 14px 18px; }
-    .chip h4 { font-size: 15px; }
-    .chip p { font-size: 11px; }
+    .chip h4 { font-size: 18px; }
+    .chip p { font-size: 13px; }
 
     .ig {
       grid-template-columns: repeat(2, 1fr);
       gap: 10px;
     }
     .ig .b { padding: 14px; }
-    .ig .b h5 { font-size: 14px; }
-    .ig .b p { font-size: 11px; }
+    .ig .b h5 { font-size: 17px; }
+    .ig .b p { font-size: 13px; }
 
     .card { padding: 16px 18px; }
-    .card h4 { font-size: 18px; }
-    .card p { font-size: 13px; }
+    .card h4 { font-size: 21px; }
+    .card p { font-size: 15px; }
 
-    .table th, .table td { padding: 10px 12px; font-size: 13px; }
+    .table th, .table td { padding: 10px 12px; font-size: 15px; }
     .table td.lab { width: auto; }
 
     .center-quote { padding: 12px 0; flex: none; }
-    .center-quote .q { font-size: clamp(28px, 7.5vw, 40px) !important; }
+    .center-quote .q { font-size: clamp(34px, 8.5vw, 48px) !important; }
 
     .closing { gap: 18px; }
-    .closing .big { font-size: clamp(22px, 6.5vw, 32px) !important; }
+    .closing .big { font-size: clamp(26px, 7.5vw, 38px) !important; }
     .closing .pillars { grid-template-columns: repeat(3, 1fr); }
 
     .hier .row { grid-template-columns: 1fr; padding: 14px 16px; gap: 6px; }
-    .hier .row .label { font-size: 11px; }
+    .hier .row .label { font-size: 12px; }
 
-    .nlist li { grid-template-columns: 40px 1fr; gap: 12px; padding: 12px 0; }
-    .nlist .n { font-size: 22px; }
-    .nlist h5 { font-size: 15px; }
-    .nlist p { font-size: 13px; }
+    .nlist li { grid-template-columns: 44px 1fr; gap: 12px; padding: 14px 0; }
+    .nlist .n { font-size: 26px; }
+    .nlist h5 { font-size: 18px; }
+    .nlist p { font-size: 15px; }
 
     /* Mobile: themed bg always visible (no active gating) */
     .slidebg { opacity: 0.28 !important; transition: none; }
@@ -646,8 +646,8 @@
       max-width: none; padding: 16px 18px 18px;
       border-radius: 14px;
     }
-    .slide.visual .vtitle { font-size: 24px; }
-    .slide.visual .vbody { font-size: 13px; }
+    .slide.visual .vtitle { font-size: 28px; }
+    .slide.visual .vbody { font-size: 15px; }
 
     /* illust shrink + reposition above content top-right */
     .illust,
