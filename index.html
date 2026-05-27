@@ -1860,7 +1860,9 @@
     s.classList.add('themed');
     const bg = document.createElement('img');
     bg.className = 'slidebg';
-    bg.src = `book5-images/bg-${part}.png`;
+    const nn = String(n).padStart(2, '0');
+    bg.src = `book5-images/bg-${nn}.png`;
+    bg.onerror = () => { bg.onerror = null; bg.src = `book5-images/bg-${part}.png`; };
     bg.loading = 'lazy';
     bg.decoding = 'async';
     bg.alt = '';
